@@ -1,41 +1,12 @@
 services:
-  db:
-    image: mariadb:latest
-    container_name: school_erp_db
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: school_erp
-      MYSQL_USER: erp_user
-      MYSQL_PASSWORD: erp_user_password
-    volumes:
-      - ./backend/project/app/db_volume:/var/lib/mysql
-    ports:
-      - "3306:3306"
-  
-  adminer:
-    image: adminer:latest
-    container_name: school_erp_adminer
-    restart: always
-    ports:
-      - "8080:8080"
-    depends_on:
-      - db
-
   api:
     build: ./backend
     container_name: school_erp_api
-    depends_on:
-      - db
     working_dir: /app
     ports:
       - "8000:8000"
     volumes:
-      - ./backend/project:/app
-    environment:
-      - DATABASE_URL=mysql://erp_user:erp_user_password@db:3306/school_erp
-      # mysql://MYSQL_USER:MYSQL_PASSWORD@SERVICENAME:PORT/MYSQL_DATABASE
-
+      - ./backend:/app
     command: /bin/bash
     stdin_open: true
     tty: true
@@ -49,15 +20,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./frontend/project:/app
-    # environment:
-    #   - DATABASE_URL=mysql://erp_user:erp_user_password@db:3306/school_erp
-      # mysql://MYSQL_USER:MYSQL_PASSWORD@SERVICENAME:PORT/MYSQL_DATABASE
-
+      - ./frontend:/app
     command: /bin/bash
     stdin_open: true
     tty: true
-
-# volumes:
-#   mariadb_data:
-#   media_storage:
