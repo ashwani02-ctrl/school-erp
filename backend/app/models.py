@@ -9,7 +9,7 @@ from datetime import datetime
 class Admin(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     name: str
-    email: EmailStr
+    email: EmailStr = Field(nullable=False, unique=True, primary_key=True)
     phone: str = Field(max_length=15)
     password: str
     created_on: datetime = Field(default_factory=datetime.now)
