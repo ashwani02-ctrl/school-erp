@@ -29,28 +29,35 @@ def get_session():
 from fastapi.security import OAuth2PasswordBearer
 from .security.token import encoding, decoding
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="Authorization")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Session = Depends(get_session)):
+    # print("token: ", token)
     decoded_token = decoding(token)
     # print(type(decoded_token["data"]))
-    print(db)
-    # user = crud.get_user_by_id(db=db, user_id=decoded_token["data"])
-    # if not user:
-    #     raise HTTPException(
-    #         status_code=status.HTTP_401_UNAUTHORIZED,
-    #         detail="Invalid authentication credentials",
-    #         headers={"WWW-Authenticate": "Bearer"},
-    #     )
+    # print(decoded_token)
+    
+    user = crud.get_user_by_id(engine = db, user_id=decoded_token["data"])
+    if not user:
+        raise Exception(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+    )
+    return user
     # return user
-    # return user
-    return {"message":"Hello, World!"}
+    # return {"message":"Hello, World!"}
 
 
 @app.get("/")
 async def root():
 	return {"message":"Hello, World!"}
+
+@app.get("/test")
+async def test(current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
+    print("current user is: ",current_user)
+    return {"message":"Hello, World!"}
 
 
 from .security.passwordhashing import hash_password
@@ -79,7 +86,8 @@ async def loginAdminUser(admin: models.Admin, db: Session = Depends(get_session)
             return JSONResponse(content={"message":"Incorrect Password!"}, status_code=status.HTTP_401_UNAUTHORIZED)
     
     return JSONResponse(content={"message":"User not found!"}, status_code=status.HTTP_404_NOT_FOUND)
-        
+
+
     
 
 

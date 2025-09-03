@@ -11,6 +11,7 @@ password: str
 
 2. Superuser auth flow
 Need email and password -> then we have the thing
+
 3. Current User flow
 4. CRUD user flow
 5. CRUD Fee flow
