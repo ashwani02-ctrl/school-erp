@@ -53,7 +53,7 @@ async def root():
 	return {"message":"Hello, World!"}
 
 
-from .security.passwordhashing import random_password_generator
+from .security.passwordhashing import hash_password
 
 # Creating Admin (SuperUser) user API
 # @app.post("/api/admin", response_model = models.Admin)
@@ -69,9 +69,18 @@ from .security.passwordhashing import random_password_generator
 @app.post("/api/admin/login", response_model = models.Admin)
 async def loginAdminUser(admin: models.Admin, db: Session = Depends(get_session)):
     
-    get_user = crud.getUserByEmail(db, admin.email, admin.password)
-    print(get_user)
-    return JSONResponse(content={"message":"API Working!"}, status_code=status.HTTP_200_OK)
+    user = crud.getUserByEmail(db, admin.email)
+    if user:
+        # Now check the passwords!
+        if hash_password(admin.password) == user.password:
+            jwt_token = encoding(user.id, "admin")
+            return JSONResponse(content={"message": "Login successful!", "token": jwt_token }, status_code=status.HTTP_200_OK)
+        else:
+            return JSONResponse(content={"message":"Incorrect Password!"}, status_code=status.HTTP_401_UNAUTHORIZED)
+    
+    return JSONResponse(content={"message":"User not found!"}, status_code=status.HTTP_404_NOT_FOUND)
+        
+    
 
 
 

@@ -8,18 +8,19 @@ from datetime import datetime, timedelta
 private_key = open('./app/security/id_rsa', 'r').read()
 public_key = open('./app/security/id_rsa.pub', 'r').read()
 
-def encoding(user_id: str):
+def encoding(user_id: str, role: str):
     """
     Encodes the user_id into a JWT token.
     """
     # Define the payload with an expiration time
     payload = {
-        "user_id": str(user_id),
+        "uid": str(user_id),
+        "role":str(role)
         # "exp": datetime.utcnow() + timedelta(minutes=30)  # Token expires in 30 minutes
     }
     
     # Getting Private key
-    pvt_key = serialization.load_ssh_private_key(private_key.encode(), password=b'12345678')
+    pvt_key = serialization.load_ssh_private_key(data = private_key.encode(), password=None)
 # >>> keyserialization.load_pem_private_key(
 #         private_key.encode(),
 #         password=b'12345678'
@@ -56,4 +57,6 @@ def decoding(token: str):
 # 1 -> Token expired
 # 2 -> Invalid token
 # 3 -> Other errors
-    
+
+if __name__ == "__main__":
+    print(encoding("e8f4fecee6fb4138a7f91b4a223aea07","admin"))
