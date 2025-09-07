@@ -36,18 +36,17 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
     # print("token: ", token)
     decoded_token = decoding(token)
     # print(type(decoded_token["data"]))
-    # print(decoded_token)
+    # print("Decoded token: ", decoded_token)
     
-    user = crud.get_user_by_id(engine = db, user_id=decoded_token["data"])
-    if not user:
+    
+    user = crud.get_user_by_id(engine = db, user_id=decoded_token["data"]["uid"], role=decoded_token["data"]["role"])
+    if not user["user"]:
         raise Exception(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",
             headers={"WWW-Authenticate": "Bearer"},
     )
     return user
-    # return user
-    # return {"message":"Hello, World!"}
 
 
 @app.get("/")
@@ -62,25 +61,18 @@ async def test(current_user: Annotated[models.Admin, Depends(get_current_user)],
 
 from .security.passwordhashing import hash_password
 
-# Creating Admin (SuperUser) user API
-# @app.post("/api/admin", response_model = models.Admin)
-# async def createAdminUser(admin: models.Admin):
-#     print("admin: ", admin)
-#     return JSONResponse(content={"message":"API Working!"}, status_code=status.HTTP_200_OK)
+from . import schema
 
 
-
-# Admin user Login
-# from crud import getUserByEmail
-
-@app.post("/api/admin/login", response_model = models.Admin)
-async def loginAdminUser(admin: models.Admin, db: Session = Depends(get_session)):
+# User Login
+@app.post("/api/login")
+async def loginAdminUser(user: schema.LoginUser, db: Session = Depends(get_session)):
     
-    user = crud.getUserByEmail(db, admin.email)
-    if user:
+    db_user = crud.getUserByEmail(db, user)
+    if db_user:
         # Now check the passwords!
-        if hash_password(admin.password) == user.password:
-            jwt_token = encoding(user.id, "admin")
+        if hash_password(user.password) == db_user.password:
+            jwt_token = encoding(db_user.id, "admin")
             return JSONResponse(content={"message": "Login successful!", "token": jwt_token }, status_code=status.HTTP_200_OK)
         else:
             return JSONResponse(content={"message":"Incorrect Password!"}, status_code=status.HTTP_401_UNAUTHORIZED)
@@ -88,7 +80,29 @@ async def loginAdminUser(admin: models.Admin, db: Session = Depends(get_session)
     return JSONResponse(content={"message":"User not found!"}, status_code=status.HTTP_404_NOT_FOUND)
 
 
+# USER MANAGEMENT CODE
+# Admin Users
+# Create Admin User
+from .security.passwordhashing import random_password_generator
+
+@app.post("/api/admin", response_model=models.Admin) # response_model tells the output schema
+async def createAdminUser(admin: models.Admin, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
     
+    if current_user["role"] == "admin":
+        
+        try:
+            password = random_password_generator()
+            db_user = crud.createAdminUser(db, admin, password)
+            return JSONResponse(content={"message":"User created Successfully!", "uid": str(db_user.id)}, status_code=status.HTTP_201_CREATED)
+        except Exception as e:
+            return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
+    
+    return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
+
+    
+    pass
 
 
 

@@ -1,6 +1,15 @@
 from .models import Admin
 from pydantic import EmailStr
+from pydantic import BaseModel, Field, EmailStr, constr, condecimal
 
-class AdminLogin(Admin):
-    email: EmailStr
-    password: str
+# class AdminLogin(Admin):
+#     email: EmailStr
+#     password: str
+
+# Login Schema
+class LoginUser(BaseModel):
+    email : EmailStr
+    password : str
+    role : str
+    
+# Create Admin User Schema

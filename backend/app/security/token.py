@@ -45,7 +45,7 @@ def decoding(token: str):
         payload = jwt.decode(token, pub_key, algorithms=["RS256"])
         # print("payload: ", payload)
         
-        return {"data": payload["uid"], "status": 0}
+        return {"data": payload, "status": 0}
     
     except jwt.ExpiredSignatureError:
         return {"data":"Token has expired", "status": 1}
