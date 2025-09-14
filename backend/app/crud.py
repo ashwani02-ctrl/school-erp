@@ -48,6 +48,41 @@ def createAdminUser(engine: Session, adminuser: models.Admin, password: str):
     engine.commit()
     engine.refresh(db_user)
     return db_user
+
+# Get Admin User
+def getAdminUser(engine: Session, id: str, name:str, email : str, phone:str):
+    
+    if len(id) != 32:
+        statement = select(
+            models.Admin.id, 
+            models.Admin.name, 
+            models.Admin.email, 
+            models.Admin.phone
+            ).where(
+                # defining filters
+                models.Admin.name.like(f"%{name}%"), 
+                models.Admin.email.like(f"%{email}%"), 
+                models.Admin.phone.like(f"%{phone}%")
+            )
+    else:
+        statement = select(
+            models.Admin.id, 
+            models.Admin.name, 
+            models.Admin.email, 
+            models.Admin.phone
+            ).where(
+                models.Admin.id == uuid.UUID(id), # id must be fixed
+                models.Admin.name.like(f"%{name}%"), 
+                models.Admin.email.like(f"%{email}%"), 
+                models.Admin.phone.like(f"%{phone}%")
+            )
+        
+    results = [ list(result) for result in list(engine.exec(statement))]
+    
+    for result in results:
+        result[0] = str(result[0])
+    return results
+    
     
     
 

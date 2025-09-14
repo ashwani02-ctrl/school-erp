@@ -85,25 +85,47 @@ async def loginAdminUser(user: schema.LoginUser, db: Session = Depends(get_sessi
 # Create Admin User
 from .security.passwordhashing import random_password_generator
 
+# Create an Admin user
 @app.post("/api/admin", response_model=models.Admin) # response_model tells the output schema
 async def createAdminUser(admin: models.Admin, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
     
     if current_user["role"] == "admin":
-        
         try:
             password = random_password_generator()
-            db_user = crud.createAdminUser(db, admin, password)
+            db_user = crud.createAdminUser(db, admin, hash_password(password))
             return JSONResponse(content={"message":"User created Successfully!", "uid": str(db_user.id)}, status_code=status.HTTP_201_CREATED)
         except Exception as e:
+            if "Duplicate entry" in str(e):
+                e = "Email Already Exists!"
             return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-        
-    
     return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
 
-    
-    pass
 
+from pydantic import EmailStr
+
+# Read Admin Users as per the filter
+@app.get("/api/admin", response_model=models.Admin)
+async def getAdminUser(current_user: Annotated[models.Admin, Depends(get_current_user)], id: str = "*", name: str = "*", email: EmailStr = "*", phone : str="*",  db: Session = Depends(get_session)):
+    
+    if current_user["role"] == "admin":
+        if id=="*":
+            id=""
+        if name=="*":
+            name=""
+        if "*" in email:
+            email=""
+        if phone=="*":
+            phone=""
+        
+        try:
+            admin_users = crud.getAdminUser(engine=db, id=id, name=name, email=email, phone=phone)
+            return JSONResponse(content={"message":"Operation Successful", "data": admin_users}, status_code=status.HTTP_200_OK)
+        
+        except Exception as e:
+             return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
 
 
 if __name__ == "__main__":

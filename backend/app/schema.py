@@ -1,4 +1,4 @@
-from .models import Admin
+# from .models import Admin
 from pydantic import EmailStr
 from pydantic import BaseModel, Field, EmailStr, constr, condecimal
 
@@ -12,4 +12,3 @@ class LoginUser(BaseModel):
     password : str
     role : str
     
-# Create Admin User Schema
