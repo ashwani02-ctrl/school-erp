@@ -11,4 +11,12 @@ class LoginUser(BaseModel):
     email : EmailStr
     password : str
     role : str
+
+# Update Admin
+class UpdateAdmin(BaseModel):
+    id: str
+    name: str
+    email: str
+    phone: str
+    password: str
     

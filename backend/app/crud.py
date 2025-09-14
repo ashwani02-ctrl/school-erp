@@ -83,9 +83,31 @@ def getAdminUser(engine: Session, id: str, name:str, email : str, phone:str):
         result[0] = str(result[0])
     return results
     
-    
-    
 
+# Update Admin User
+def updateAdminUser(engine: Session, admin: schema.UpdateAdmin):
+    statement = select(models.Admin).where(models.Admin.id == uuid.UUID(admin.id))
+    results = engine.exec(statement)
+    admin_user = results.one()
+    
+    if admin.password != "":
+        admin_user.password = admin.password
+    
+    admin_user.name = admin.name
+    admin_user.email = admin.email
+    admin_user.phone = admin.phone
+    
+    engine.add(admin_user)
+    engine.commit()
+    engine.refresh(admin_user)
+    print("Updated Admin: ", admin_user)
+    
+    
+    
+    updated_user =  dict(admin_user)
+    updated_user['id'] = str(updated_user['id'])
+    return updated_user
+    
     
 
 
