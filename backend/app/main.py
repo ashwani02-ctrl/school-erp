@@ -140,12 +140,22 @@ async def updateAdminUser(admin: models.Admin, current_user: Annotated[models.Ad
             return JSONResponse(content={"message":"User update successful!", "data": updated_user}, status_code=status.HTTP_200_OK)
         except Exception as e:
             return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            
-        
         
     return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
         
-    pass
+
+# Delete Admin user
+@app.delete("/api/admin", response_model=models.Admin)
+async def updateAdminUser(admin: models.Admin, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
+    if current_user["role"] == "admin":
+        try:
+            deleted_user = crud.deleteAdminUser(engine=db, admin=admin)
+            print("updated_user: ", deleted_user)
+            return JSONResponse(content={"message":"User deletion successful!", "data": deleted_user}, status_code=status.HTTP_200_OK)
+        except Exception as e:
+            return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
 
 if __name__ == "__main__":
     print(get_session())

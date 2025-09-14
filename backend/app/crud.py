@@ -107,7 +107,25 @@ def updateAdminUser(engine: Session, admin: schema.UpdateAdmin):
     updated_user =  dict(admin_user)
     updated_user['id'] = str(updated_user['id'])
     return updated_user
+
+# Delete Admin User
+def deleteAdminUser(engine: Session, admin: schema.DeleteAdmin):
+    statement = select(models.Admin).where(
+        models.Admin.id == uuid.UUID(admin.id),
+        models.Admin.name == admin.name,
+        models.Admin.email  == admin.email,
+        models.Admin.phone == admin.phone
+        )
+    results = engine.exec(statement)
+    admin_user = results.one()
     
+    print("selected admin_user: ", admin_user)
+    engine.delete(admin_user)
+    engine.commit()
+    
+    deleted_user =  dict(admin_user)
+    deleted_user['id'] = str(deleted_user['id'])
+    return deleted_user
     
 
 

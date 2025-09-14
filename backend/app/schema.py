@@ -19,4 +19,8 @@ class UpdateAdmin(BaseModel):
     email: str
     phone: str
     password: str
+
+# Delete Admin
+class DeleteAdmin(UpdateAdmin):
+    pass
     
