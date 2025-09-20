@@ -104,6 +104,7 @@ def updateAdminUser(engine: Session, admin: schema.UpdateAdmin):
     
     updated_user =  dict(admin_user)
     updated_user['id'] = str(updated_user['id'])
+    updated_user.pop('password', None)
     return updated_user
 
 # Delete Admin User
@@ -123,6 +124,7 @@ def deleteAdminUser(engine: Session, admin: schema.DeleteAdmin):
     
     deleted_user =  dict(admin_user)
     deleted_user['id'] = str(deleted_user['id'])
+    deleted_user.pop('password', None)
     return deleted_user
     
 
@@ -209,4 +211,41 @@ def updateSchoolUser(engine: Session, school: models.School):
     updated_user =  dict(school_user)
     updated_user['id'] = str(updated_user['id'])
     updated_user['admin_id'] = str(updated_user['admin_id'])
+    updated_user.pop('password', None)
+    # updated_user.pop('created_by', None)
+    updated_user['created_by'] = {
+                "id": str(school_user.created_by.id),
+                "name":school_user.created_by.name,
+                "email":school_user.created_by.email,
+                "phone":school_user.created_by.phone,
+            }
     return updated_user
+
+
+# Delete School User
+def deleteSchoolUser(engine: Session, school: models.School):
+    statement = select(models.School).where(
+        models.School.id == uuid.UUID(school.id),
+        models.School.name == school.name,
+        models.School.email  == school.email,
+        models.School.phone == school.phone
+        )
+    results = engine.exec(statement)
+    school_user = results.one()
+    
+    print("selected admin_user: ", school_user)
+    engine.delete(school_user)
+    # engine.commit()
+    
+    deleted_user =  dict(school_user)
+    deleted_user['id'] = str(deleted_user['id'])
+    deleted_user['admin_id'] = str(deleted_user['admin_id'])
+    deleted_user.pop('password', None)
+    
+    deleted_user['created_by'] = {
+                "id": str(school_user.created_by.id),
+                "name":school_user.created_by.name,
+                "email":school_user.created_by.email,
+                "phone":school_user.created_by.phone,
+            }
+    return deleted_user
