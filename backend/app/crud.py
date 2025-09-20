@@ -185,3 +185,28 @@ def getSchoolUser(engine: Session, id: str, name:str, email : str, phone:str):
    
     return output_list
     
+
+# Update School User
+def updateSchoolUser(engine: Session, school: models.School):
+    statement = select(models.School).where(models.School.id == uuid.UUID(school.id))
+    results = engine.exec(statement)
+    school_user = results.one()
+    
+    if school.password != "":
+        school_user.password = school.password
+    
+    school_user.name = school.name
+    school_user.email = school.email
+    school_user.phone = school.phone
+    
+    engine.add(school_user)
+    engine.commit()
+    engine.refresh(school_user)
+    print("Updated School: ", school_user)
+    
+    
+    
+    updated_user =  dict(school_user)
+    updated_user['id'] = str(updated_user['id'])
+    updated_user['admin_id'] = str(updated_user['admin_id'])
+    return updated_user

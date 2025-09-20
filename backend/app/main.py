@@ -214,6 +214,24 @@ async def getSchoolUser(
     return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
 
 
+# Update School user
+@app.put("/api/school", response_model=models.School)
+async def updateSchoolUser(school: models.School, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
+    if current_user["role"] == "admin":
+        
+        # print("admin schema: ", admin)
+        if school.password != "":
+            school.password = hash_password(school.password)
+        try:
+            updated_user = crud.updateSchoolUser(engine=db, school=school)
+            print("updated_user: ", updated_user)
+            return JSONResponse(content={"message":"User update successful!", "data": updated_user}, status_code=status.HTTP_200_OK)
+        except Exception as e:
+            return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
+        
+        
 # End School Users
 
 
