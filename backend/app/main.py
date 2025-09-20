@@ -105,15 +105,21 @@ async def createAdminUser(admin: models.Admin, current_user: Annotated[models.Ad
 from pydantic import EmailStr
 
 # Read Admin Users as per the filter
-@app.get("/api/admin", response_model=models.Admin)
-async def getAdminUser(current_user: Annotated[models.Admin, Depends(get_current_user)], id: str = "*", name: str = "*", email: EmailStr = "*", phone : str="*",  db: Session = Depends(get_session)):
+@app.get("/api/admin", response_model=list[models.Admin])
+async def getAdminUser(
+    current_user: Annotated[models.Admin, Depends(get_current_user)], 
+    id: str = "*", 
+    name: str = "*", 
+    email: Optional[str] = "*", 
+    phone : str="*",  
+    db: Session = Depends(get_session)):
     
     if current_user["role"] == "admin":
         if id=="*":
             id=""
         if name=="*":
             name=""
-        if "*" in email:
+        if email=="*":
             email=""
         if phone=="*":
             phone=""
@@ -193,7 +199,7 @@ async def getSchoolUser(
             id=""
         if name=="*":
             name=""
-        if "*" in email:
+        if email=="*":
             email=""
         if phone=="*":
             phone=""

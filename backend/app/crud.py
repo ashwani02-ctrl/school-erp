@@ -53,35 +53,33 @@ def createAdminUser(engine: Session, adminuser: models.Admin, password: str):
 def getAdminUser(engine: Session, id: str, name:str, email : str, phone:str):
     
     if len(id) != 32:
-        statement = select(
-            models.Admin.id, 
-            models.Admin.name, 
-            models.Admin.email, 
-            models.Admin.phone
-            ).where(
+        statement = select(models.Admin).where(
                 # defining filters
                 models.Admin.name.like(f"%{name}%"), 
                 models.Admin.email.like(f"%{email}%"), 
                 models.Admin.phone.like(f"%{phone}%")
             )
     else:
-        statement = select(
-            models.Admin.id, 
-            models.Admin.name, 
-            models.Admin.email, 
-            models.Admin.phone
-            ).where(
+        statement = select(models.Admin).where(
                 models.Admin.id == uuid.UUID(id), # id must be fixed
                 models.Admin.name.like(f"%{name}%"), 
                 models.Admin.email.like(f"%{email}%"), 
                 models.Admin.phone.like(f"%{phone}%")
             )
         
-    results = [ list(result) for result in list(engine.exec(statement))]
+
+    results = engine.exec(statement)
     
+    output_list = list()
     for result in results:
-        result[0] = str(result[0])
-    return results
+        
+        output_list.append({
+            "id" : str(result.id),
+            "name":result.name,
+            "email":result.email,
+            "phone":result.phone,
+        })
+    return output_list
     
 
 # Update Admin User
@@ -146,6 +144,7 @@ def createSchoolUser(engine: Session, adminuser: models.Admin, schooluser: model
     engine.refresh(db_user)
     return db_user
 
+
 from sqlalchemy.orm import selectinload
 # Get School User
 def getSchoolUser(engine: Session, id: str, name:str, email : str, phone:str):
@@ -166,12 +165,11 @@ def getSchoolUser(engine: Session, id: str, name:str, email : str, phone:str):
                 models.School.phone.like(f"%{phone}%")
             ).options(selectinload(models.School.created_by))
         
-    # results = [ list(result) for result in list(engine.exec(statement))]
+   
     results = engine.exec(statement)
+    
     output_list = list()
-    for result in results:
-        # result[0] = str(result[0])
-        # print("result: ", result.created_by)
+    for result in results:    
         output_list.append({
             "id": str(result.id),
             "name":result.name,
@@ -184,6 +182,6 @@ def getSchoolUser(engine: Session, id: str, name:str, email : str, phone:str):
                 "phone":result.created_by.phone,
             }
         })
-    # print("results: ", results)
+   
     return output_list
     
