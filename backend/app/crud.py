@@ -132,19 +132,6 @@ def deleteAdminUser(engine: Session, admin: schema.DeleteAdmin):
 
 # Create School User
 def createSchoolUser(engine: Session, adminuser: models.Admin, schooluser: models.School, password: str):
-    
-    # db_user = {
-    #     "name" : schooluser.name,
-    #     "password" : password,
-    #     "email": schooluser.email,
-    #     "phone": schooluser.phone,
-    #     "created_by": adminuser,
-    #     "admin_id" : adminuser.id
-            
-    #     }
-    
-    # print(db_user)
-    
     db_user = models.School(
         name = schooluser.name,
         password = password,
@@ -159,5 +146,44 @@ def createSchoolUser(engine: Session, adminuser: models.Admin, schooluser: model
     engine.refresh(db_user)
     return db_user
 
-
+from sqlalchemy.orm import selectinload
+# Get School User
+def getSchoolUser(engine: Session, id: str, name:str, email : str, phone:str):
+    
+    if len(id) != 32:
+        statement = select(models.School).where(
+                # defining filters
+                models.School.name.like(f"%{name}%"), 
+                models.School.email.like(f"%{email}%"), 
+                models.School.phone.like(f"%{phone}%")
+            ).options(selectinload(models.School.created_by))
+        
+    else:
+        statement = select(models.School).where(
+                models.School.id == uuid.UUID(id), # id must be fixed
+                models.School.name.like(f"%{name}%"), 
+                models.School.email.like(f"%{email}%"), 
+                models.School.phone.like(f"%{phone}%")
+            ).options(selectinload(models.School.created_by))
+        
+    # results = [ list(result) for result in list(engine.exec(statement))]
+    results = engine.exec(statement)
+    output_list = list()
+    for result in results:
+        # result[0] = str(result[0])
+        # print("result: ", result.created_by)
+        output_list.append({
+            "id": str(result.id),
+            "name":result.name,
+            "email":result.email,
+            "phone":result.phone,
+            "created_by":{
+                "id": str(result.created_by.id),
+                "name":result.created_by.name,
+                "email":result.created_by.email,
+                "phone":result.created_by.phone,
+            }
+        })
+    # print("results: ", results)
+    return output_list
     

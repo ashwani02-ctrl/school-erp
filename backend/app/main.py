@@ -8,7 +8,7 @@ from . import models, crud
 from .database import engine
 SQLModel.metadata.create_all(engine)
 
-from typing import Annotated
+from typing import Annotated, Optional
 
 app = FastAPI()
 
@@ -177,6 +177,37 @@ async def createSchoolUser(school: models.School, current_user: Annotated[models
             return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
+
+# Read School Users as per the filter
+@app.get("/api/school", response_model=list[models.School])
+async def getSchoolUser(
+    current_user: Annotated[models.School, Depends(get_current_user)], 
+    id: str = "*", 
+    name: str = "*", 
+    email: Optional[str] = "*", 
+    phone : str="*",  
+    db: Session = Depends(get_session)):
+    
+    if current_user["role"] == "admin":
+        if id=="*":
+            id=""
+        if name=="*":
+            name=""
+        if "*" in email:
+            email=""
+        if phone=="*":
+            phone=""
+        
+        try:
+            school_users = crud.getSchoolUser(engine=db, id=id, name=name, email=email, phone=phone)
+            return JSONResponse(content={"message":"Operation Successful", "data": school_users}, status_code=status.HTTP_200_OK)
+        
+        except Exception as e:
+             return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
+
+
 # End School Users
 
 
