@@ -249,3 +249,19 @@ def deleteSchoolUser(engine: Session, school: models.School):
                 "phone":school_user.created_by.phone,
             }
     return deleted_user
+
+# Create Teacher User
+def createTeacherUser(engine: Session, schooluser: models.School, teacheruser: models.Teacher, password: str):
+    db_user = models.Teacher(
+        name = teacheruser.name,
+        password = password,
+        email= teacheruser.email,
+        phone= teacheruser.phone,
+        school= schooluser,
+        school_id = schooluser.id
+    )
+    
+    engine.add(db_user)
+    # engine.commit()
+    # engine.refresh(db_user)
+    return db_user

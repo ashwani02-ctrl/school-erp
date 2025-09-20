@@ -45,7 +45,8 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",
             headers={"WWW-Authenticate": "Bearer"},
-    )
+        )
+        
     return user
 
 
@@ -72,7 +73,7 @@ async def loginAdminUser(user: schema.LoginUser, db: Session = Depends(get_sessi
     if db_user:
         # Now check the passwords!
         if hash_password(user.password) == db_user.password:
-            jwt_token = encoding(db_user.id, "admin")
+            jwt_token = encoding(db_user.id, user.role.lower())
             return JSONResponse(content={"message": "Login successful!", "token": jwt_token }, status_code=status.HTTP_200_OK)
         else:
             return JSONResponse(content={"message":"Incorrect Password!"}, status_code=status.HTTP_401_UNAUTHORIZED)
@@ -243,9 +244,43 @@ async def updateAdminUser(school: models.School, current_user: Annotated[models.
             return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
-
 # End School Users
 
+# Teacher User
+# Create a Teacher user
+@app.post("/api/teacher", response_model=models.Teacher) # response_model tells the output schema
+async def createTeacherUser(teacher: models.Teacher, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
+    
+    if current_user["role"] in ["admin","school"]:
+        # print("Current User id: ", current_user['user'])
+        # print("school: ", school)
+        try:
+            password = random_password_generator()
+            
+            if current_user['role'] == 'school':
+                db_user = crud.createTeacherUser(db, current_user['user'], teacher, hash_password(password))
+            else:
+                db_user = crud.createTeacherUser(db, crud.get_user_by_id(db, str(teacher.school_id), "school")['user'], teacher, hash_password(password))
+            return JSONResponse(content={"message":"User created Successfully!", "uid": str(db_user.id)}, status_code=status.HTTP_201_CREATED)
+        except Exception as e:
+            if "Duplicate entry" in str(e):
+                e = "Email Already Exists!"
+            return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    # elif current_user["role"] == "school": 
+    #     # print("role: ", current_user['role'])
+    #     try:
+    #         password = random_password_generator()
+    #         db_user = crud.createSchoolUser(db, current_user['user'], teacher, hash_password(password))
+    #         return JSONResponse(content={"message":"User created Successfully!", "uid": str(db_user.id)}, status_code=status.HTTP_201_CREATED)
+    #     except Exception as e:
+    #         if "Duplicate entry" in str(e):
+    #             e = "Email Already Exists!"
+    #         return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        pass
+        
+    return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
 
 if __name__ == "__main__":
     print(get_session())
