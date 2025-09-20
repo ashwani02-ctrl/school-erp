@@ -131,6 +131,7 @@ async def getAdminUser(current_user: Annotated[models.Admin, Depends(get_current
 @app.put("/api/admin", response_model=models.Admin)
 async def updateAdminUser(admin: models.Admin, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
     if current_user["role"] == "admin":
+        
         # print("admin schema: ", admin)
         if admin.password != "":
             admin.password = hash_password(admin.password)
@@ -156,6 +157,28 @@ async def updateAdminUser(admin: models.Admin, current_user: Annotated[models.Ad
             return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
+# End Admin Users
+
+# School Users
+# Create a School user
+@app.post("/api/school", response_model=models.School) # response_model tells the output schema
+async def createSchoolUser(school: models.School, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
+    
+    if current_user["role"] == "admin":
+        # print("Current User id: ", current_user['user'])
+        # print("school: ", school)
+        try:
+            password = random_password_generator()
+            db_user = crud.createSchoolUser(db, current_user['user'], school, hash_password(password))
+            return JSONResponse(content={"message":"User created Successfully!", "uid": str(db_user.id)}, status_code=status.HTTP_201_CREATED)
+        except Exception as e:
+            if "Duplicate entry" in str(e):
+                e = "Email Already Exists!"
+            return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
+# End School Users
+
 
 if __name__ == "__main__":
     print(get_session())

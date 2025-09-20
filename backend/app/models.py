@@ -28,12 +28,14 @@ class School(SQLModel, table=True):
     password: str
 
 #     created_on: datetime = Field(default_factory=datetime.now)
-    students: list["Student"] = Relationship(back_populates="school", cascade_delete=True)
-    teachers: list["Teacher"] = Relationship(back_populates="school", cascade_delete=True)
+    # students: list["Student"] = Relationship(back_populates="school", cascade_delete=True)
+    # teachers: list["Teacher"] = Relationship(back_populates="school", cascade_delete=True)
     
     
     created_by : Admin = Relationship(back_populates="schools")
     admin_id: uuid.UUID = Field(default=None, foreign_key="admin.id", ondelete="CASCADE") # To delete related school records, if someone delete admin from DB directly.
+    
+    
     # classes: list["ClassSection"] = Relationship(back_populates="school", cascade_delete=True)
     # feeplan_ids : uuid.UUID = Field(default=None, foreign_key="feeplan.id")
     # feeplans : list["FeePlan"] = Relationship(back_populates="school")
@@ -48,13 +50,13 @@ class Teacher(SQLModel, table=True):
     email: EmailStr = Field(nullable=False, unique=True, primary_key=True)
     phone: str = Field(max_length=15)
     password: str
-#     standard : str | None
-#     section : str | None
-#     created_on: datetime = Field(default_factory=datetime.now)
-    school: School = Relationship(back_populates="teachers")
-    school_id: uuid.UUID = Field(default=None, foreign_key="school.id", ondelete="CASCADE")
-    # classsection : list["ClassSection"] = Relationship(back_populates="classteacher")
-    # attendances : list["Attendance"] = Relationship(back_populates="teacher")
+# #     standard : str | None
+# #     section : str | None
+# #     created_on: datetime = Field(default_factory=datetime.now)
+#     school: School = Relationship(back_populates="teachers")
+#     school_id: uuid.UUID = Field(default=None, foreign_key="school.id", ondelete="CASCADE")
+#     # classsection : list["ClassSection"] = Relationship(back_populates="classteacher")
+#     # attendances : list["Attendance"] = Relationship(back_populates="teacher")
     
     
 
@@ -65,14 +67,14 @@ class Student(SQLModel, table=True):
     email: EmailStr = Field(nullable=False, unique=True, primary_key=True)
     phone: str = Field(max_length=15)
     password: str
-#     standard : str | None
-#     section : str | None
-#     created_on: datetime = Field(default_factory=datetime.now)
-    school: School = Relationship(back_populates="students")
-    school_id: uuid.UUID = Field(default=None, foreign_key="school.id", ondelete="CASCADE")
-    # classsection : "ClassSection" = Relationship(back_populates="students")
-    # attendances : list["Attendance"] = Relationship(back_populates="student")
-    # feerecords : list["FeeRecord"] = Relationship(back_populates="student")
+# #     standard : str | None
+# #     section : str | None
+# #     created_on: datetime = Field(default_factory=datetime.now)
+#     school: School = Relationship(back_populates="students")
+#     school_id: uuid.UUID = Field(default=None, foreign_key="school.id", ondelete="CASCADE")
+#     # classsection : "ClassSection" = Relationship(back_populates="students")
+#     # attendances : list["Attendance"] = Relationship(back_populates="student")
+#     # feerecords : list["FeeRecord"] = Relationship(back_populates="student")
 
 
 # Class model

@@ -128,5 +128,36 @@ def deleteAdminUser(engine: Session, admin: schema.DeleteAdmin):
     return deleted_user
     
 
+# School User
+
+# Create School User
+def createSchoolUser(engine: Session, adminuser: models.Admin, schooluser: models.School, password: str):
+    
+    # db_user = {
+    #     "name" : schooluser.name,
+    #     "password" : password,
+    #     "email": schooluser.email,
+    #     "phone": schooluser.phone,
+    #     "created_by": adminuser,
+    #     "admin_id" : adminuser.id
+            
+    #     }
+    
+    # print(db_user)
+    
+    db_user = models.School(
+        name = schooluser.name,
+        password = password,
+        email= schooluser.email,
+        phone= schooluser.phone,
+        created_by= adminuser,
+        admin_id = adminuser.id
+    )
+    
+    engine.add(db_user)
+    engine.commit()
+    engine.refresh(db_user)
+    return db_user
+
 
     

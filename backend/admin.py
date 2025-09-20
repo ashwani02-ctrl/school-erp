@@ -41,9 +41,9 @@ if __name__ == "__main__":
         # db.refresh(new_user)
         with Session(engine) as session:
             db_admin = Admin.model_validate(new_user)
-            session.add(db_admin)
-            session.commit()
-            session.refresh(db_admin)
+            session.add(db_admin)  # Save user in RAM
+            session.commit() # Actually saves changes in DB.
+            session.refresh(db_admin) # Access the fresh instance 
         
         
         print(f"Superuser {name} created successfully.")
