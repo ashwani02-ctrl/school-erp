@@ -52,7 +52,7 @@ def createAdminUser(engine: Session, adminuser: models.Admin, password: str):
 # Get Admin User
 def getAdminUser(engine: Session, id: str, name:str, email : str, phone:str):
     
-    if len(id) != 32:
+    if len(id.replace("-", "")) != 32:
         statement = select(models.Admin).where(
                 # defining filters
                 models.Admin.name.like(f"%{name}%"), 
@@ -151,7 +151,7 @@ from sqlalchemy.orm import selectinload
 # Get School User
 def getSchoolUser(engine: Session, id: str, name:str, email : str, phone:str):
     
-    if len(id) != 32:
+    if len(id.replace("-","")) != 32:
         statement = select(models.School).where(
                 # defining filters
                 models.School.name.like(f"%{name}%"), 
@@ -262,6 +262,53 @@ def createTeacherUser(engine: Session, schooluser: models.School, teacheruser: m
     )
     
     engine.add(db_user)
-    # engine.commit()
-    # engine.refresh(db_user)
+    engine.commit()
+    engine.refresh(db_user)
     return db_user
+
+# Get Teacher User
+def getTeacherUser(engine: Session, id: str, name:str, email : str, phone:str, school: models.School):
+    
+    print(len(id.replace("-","")))
+    print("REached to getTEacherUser")
+    print("type of id: ", type(id))
+    # print("type of school_id: ", (school_id))
+    
+    if len(id.replace("-","")) != 32:
+        statement = select(models.Teacher).where(
+                # defining filters
+                models.Teacher.school_id == school.id,
+                models.Teacher.name.like(f"%{name}%"), 
+                models.Teacher.email.like(f"%{email}%"), 
+                models.Teacher.phone.like(f"%{phone}%")
+            ).options(selectinload(models.Teacher.school))
+        
+    else:
+        statement = select(models.Teacher).where(
+                models.Teacher.id == uuid.UUID(id), # id must be fixed
+                models.Teacher.school_id == school.id,
+                models.Teacher.name.like(f"%{name}%"), 
+                models.Teacher.email.like(f"%{email}%"), 
+                models.Teacher.phone.like(f"%{phone}%"),
+            ).options(selectinload(models.Teacher.school))
+    
+    print("Completed to getTEacherUser")
+   
+    results = engine.exec(statement)
+    
+    output_list = list()
+    for result in results:    
+        output_list.append({
+            "id": str(result.id),
+            "name":result.name,
+            "email":result.email,
+            "phone":result.phone,
+            "school":{
+                "id": str(result.school.id),
+                "name":result.school.name,
+                "email":result.school.email,
+                "phone":result.school.phone,
+            }
+        })
+   
+    return output_list

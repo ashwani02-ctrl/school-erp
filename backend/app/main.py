@@ -266,21 +266,46 @@ async def createTeacherUser(teacher: models.Teacher, current_user: Annotated[mod
             if "Duplicate entry" in str(e):
                 e = "Email Already Exists!"
             return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
-    # elif current_user["role"] == "school": 
-    #     # print("role: ", current_user['role'])
-    #     try:
-    #         password = random_password_generator()
-    #         db_user = crud.createSchoolUser(db, current_user['user'], teacher, hash_password(password))
-    #         return JSONResponse(content={"message":"User created Successfully!", "uid": str(db_user.id)}, status_code=status.HTTP_201_CREATED)
-    #     except Exception as e:
-    #         if "Duplicate entry" in str(e):
-    #             e = "Email Already Exists!"
-    #         return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-        pass
         
     return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
+
+
+# Read Teacher Users as per the filter
+@app.get("/api/teacher", response_model=list[models.Teacher])
+async def getTeacherUser(
+    current_user: Annotated[models.Admin, Depends(get_current_user)], 
+    id: str = "*", 
+    name: str = "*", 
+    email: Optional[str] = "*", 
+    phone : str="*",  
+    school_id: str="*",
+    db: Session = Depends(get_session)):
+    
+    if current_user["role"] in ["admin", "school"]:
+        if id=="*":
+            id=""
+        if name=="*":
+            name=""
+        if email=="*":
+            email=""
+        if phone=="*":
+            phone=""
+        
+        try:
+            
+            if current_user['role'] == 'school':
+                teacher_users = crud.getTeacherUser(engine=db, id=id, name=name, email=email, phone=phone, school=current_user["user"])
+            else:
+                teacher_users = crud.getTeacherUser(engine=db, id=id, name=name, email=email, phone=phone, school=crud.get_user_by_id(db, school_id, "school")["user"])
+            return JSONResponse(content={"message":"Operation Successful", "data": teacher_users}, status_code=status.HTTP_200_OK)
+        
+        except Exception as e:
+             return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
+
+
+# End Teacher Users
 
 if __name__ == "__main__":
     print(get_session())
