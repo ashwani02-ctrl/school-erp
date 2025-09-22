@@ -312,3 +312,36 @@ def getTeacherUser(engine: Session, id: str, name:str, email : str, phone:str, s
         })
    
     return output_list
+
+# Update Teacher User
+def updateTeacherUser(engine: Session, teacher: models.Teacher):
+    statement = select(models.Teacher).where(models.Teacher.id == uuid.UUID(teacher.id))
+    results = engine.exec(statement)
+    teacher_user = results.one()
+    
+    if teacher.password != "":
+        teacher_user.password = teacher.password
+    
+    teacher_user.name = teacher.name
+    teacher_user.email = teacher.email
+    teacher_user.phone = teacher.phone
+    
+    engine.add(teacher_user)
+    engine.commit()
+    engine.refresh(teacher_user)
+    print("Updated Teacher: ", teacher_user)
+    
+    
+    
+    updated_user =  dict(teacher_user)
+    updated_user['id'] = str(updated_user['id'])
+    updated_user['school_id'] = str(updated_user['school_id'])
+    updated_user.pop('password', None)
+    # updated_user.pop('created_by', None)
+    updated_user['school'] = {
+                "id": str(teacher_user.school.id),
+                "name":teacher_user.school.name,
+                "email":teacher_user.school.email,
+                "phone":teacher_user.school.phone,
+            }
+    return updated_user
