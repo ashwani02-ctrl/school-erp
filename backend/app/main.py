@@ -304,7 +304,7 @@ async def getTeacherUser(
         
     return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
 
-# Update Teacher user - WORK HERE!
+# Update Teacher user
 @app.put("/api/teacher", response_model=models.Teacher)
 async def updateTeacherUser(teacher: models.Teacher, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
     if current_user["role"] in ["admin", "school"]:
@@ -320,7 +320,19 @@ async def updateTeacherUser(teacher: models.Teacher, current_user: Annotated[mod
             return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
+
+# Delete Teacher user
+@app.delete("/api/teacher", response_model=models.Teacher)
+async def updateAdminUser(teacher: models.Teacher, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
+    if current_user["role"] in ["admin","school"]:
+        try:
+            deleted_user = crud.deleteTeacherUser(engine=db, teacher=teacher)
+            print("deleted_user: ", deleted_user)
+            return JSONResponse(content={"message":"User deletion successful!", "data": deleted_user}, status_code=status.HTTP_200_OK)
+        except Exception as e:
+            return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
+    return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
 
 # End Teacher Users
 

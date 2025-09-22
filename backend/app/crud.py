@@ -233,9 +233,9 @@ def deleteSchoolUser(engine: Session, school: models.School):
     results = engine.exec(statement)
     school_user = results.one()
     
-    print("selected admin_user: ", school_user)
+    print("selected school_user: ", school_user)
     engine.delete(school_user)
-    # engine.commit()
+    engine.commit()
     
     deleted_user =  dict(school_user)
     deleted_user['id'] = str(deleted_user['id'])
@@ -345,3 +345,31 @@ def updateTeacherUser(engine: Session, teacher: models.Teacher):
                 "phone":teacher_user.school.phone,
             }
     return updated_user
+
+# Delete Teacher User
+def deleteTeacherUser(engine: Session, teacher: models.Teacher):
+    statement = select(models.Teacher).where(
+        models.Teacher.id == uuid.UUID(teacher.id),
+        models.Teacher.name == teacher.name,
+        models.Teacher.email  == teacher.email,
+        models.Teacher.phone == teacher.phone
+        )
+    results = engine.exec(statement)
+    teacher_user = results.one()
+    
+    print("selected teacher_user: ", teacher_user)
+    engine.delete(teacher_user)
+    engine.commit()
+    
+    deleted_user =  dict(teacher_user)
+    deleted_user['id'] = str(deleted_user['id'])
+    deleted_user['school_id'] = str(deleted_user['school_id'])
+    deleted_user.pop('password', None)
+    
+    deleted_user['school'] = {
+                "id": str(teacher_user.school.id),
+                "name":teacher_user.school.name,
+                "email":teacher_user.school.email,
+                "phone":teacher_user.school.phone,
+            }
+    return deleted_user

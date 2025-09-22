@@ -28,7 +28,7 @@ class School(SQLModel, table=True):
     password: str
 
 #     created_on: datetime = Field(default_factory=datetime.now)
-    # students: list["Student"] = Relationship(back_populates="school", cascade_delete=True)
+    students: list["Student"] = Relationship(back_populates="school", cascade_delete=True)
     teachers: list["Teacher"] = Relationship(back_populates="school", cascade_delete=True)
     
     
@@ -70,8 +70,8 @@ class Student(SQLModel, table=True):
 # #     standard : str | None
 # #     section : str | None
 # #     created_on: datetime = Field(default_factory=datetime.now)
-#     school: School = Relationship(back_populates="students")
-#     school_id: uuid.UUID = Field(default=None, foreign_key="school.id", ondelete="CASCADE")
+    school: School = Relationship(back_populates="students")
+    school_id: uuid.UUID = Field(default=None, foreign_key="school.id", ondelete="CASCADE")
 #     # classsection : "ClassSection" = Relationship(back_populates="students")
 #     # attendances : list["Attendance"] = Relationship(back_populates="student")
 #     # feerecords : list["FeeRecord"] = Relationship(back_populates="student")
