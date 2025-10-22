@@ -19,7 +19,7 @@ export default function LoginPage() {
             alt=""
             />
           </div>
-          Acme Inc.
+          School ERP
         </a>
         <LoginForm />
       </div>

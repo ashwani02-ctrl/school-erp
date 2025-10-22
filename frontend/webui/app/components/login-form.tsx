@@ -30,7 +30,7 @@ import {
 // import { useState } from "react"
 
 
-
+import Cookies from 'js-cookie';
 
 import {
     Form,
@@ -73,7 +73,7 @@ export function LoginForm({
     })
 
     // 2. Define a submit handler.
-    function onSubmit(values: z.infer<typeof formSchema>) {
+    async function onSubmit(values: z.infer<typeof formSchema>) {
 
         toast("You submitted the following values:", {
             description: (
@@ -88,7 +88,25 @@ export function LoginForm({
             style: {
                 "--border-radius": "calc(var(--radius)  + 4px)",
             } as React.CSSProperties,
-        })
+        });
+
+        try {
+            const res = await fetch("/api/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(values),
+            });
+
+            if (!res.ok) throw new Error("Login failed");
+
+            const result = await res.json();
+            // console.log("Login success:", result);
+            Cookies.set("token", result.token, {path : '/'});
+            // Redirect or store token here
+        } catch (err) {
+            console.error("Login error:", err);
+        }
+
 
 
     }
