@@ -40,7 +40,8 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
     
     
     user = crud.get_user_by_id(engine = db, user_id=decoded_token["data"]["uid"], role=decoded_token["data"]["role"])
-    if not user["user"]:
+    
+    if user == None:
         raise Exception(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",
@@ -364,6 +365,101 @@ async def createStudentUser(student: models.Student, current_user: Annotated[mod
 # Read Student Users as per the filter
 @app.get("/api/student", response_model=list[models.Student])
 async def getStudentUser(
+    current_user: Annotated[models.Admin, Depends(get_current_user)], 
+    id: str = "*", 
+    name: str = "*", 
+    email: Optional[str] = "*", 
+    phone : str="*",  
+    school_id: str="*",
+    db: Session = Depends(get_session)):
+    
+    if current_user["role"] in ["admin", "school"]:
+        if id=="*":
+            id=""
+        if name=="*":
+            name=""
+        if email=="*":
+            email=""
+        if phone=="*":
+            phone=""
+        
+        try:
+            
+            if current_user['role'] == 'school':
+                teacher_users = crud.getStudentUser(engine=db, id=id, name=name, email=email, phone=phone, school=current_user["user"])
+            else:
+                teacher_users = crud.getStudentUser(engine=db, id=id, name=name, email=email, phone=phone, school=crud.get_user_by_id(db, school_id, "school")["user"])
+            return JSONResponse(content={"message":"Operation Successful", "data": teacher_users}, status_code=status.HTTP_200_OK)
+        
+        except Exception as e:
+             return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
+
+# Update Student user
+@app.put("/api/student", response_model=models.Student)
+async def updateStudentUser(student: models.Student, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
+    if current_user["role"] in ["admin", "school"]:
+        
+        # print("admin schema: ", admin)
+        if student.password != "":
+            student.password = hash_password(student.password)
+        try:
+            updated_user = crud.updateStudentUser(engine=db, student=student)
+            print("updated_user: ", updated_user)
+            return JSONResponse(content={"message":"Student update successful!", "data": updated_user}, status_code=status.HTTP_200_OK)
+        except Exception as e:
+            return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
+
+# Delete Student user
+@app.delete("/api/student", response_model=models.Student)
+async def deleteStudentUser(student: models.Student, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
+    if current_user["role"] in ["admin","school"]:
+        try:
+            deleted_user = crud.deleteStudentUser(engine=db, student=student)
+            print("deleted_user: ", deleted_user)
+            return JSONResponse(content={"message":"User deletion successful!", "data": deleted_user}, status_code=status.HTTP_200_OK)
+        except Exception as e:
+            return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
+
+# End Student Users
+
+
+
+
+# ClassSection
+# Create a ClassSection
+@app.post("/api/classsection", response_model=models.ClassSection) # response_model tells the output schema
+async def createClassSection(classsection: models.ClassSection, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
+    
+    if current_user["role"] in ["admin","school"]:
+        # print("Current User id: ", current_user['user'])
+        # print("school: ", school)
+        try:
+            # password = random_password_generator()
+            
+            if current_user['role'] == 'school':
+                db_item = crud.createClassSection(db, classsection.classname, current_user['user'], crud.get_user_by_id(db, str(classsection.classteacher_id), "teacher")['user'])
+            else:
+                db_item = crud.createClassSection(db, classsection.classname, crud.get_user_by_id(db, str(classsection.school_id), "school")['user'], crud.get_user_by_id(db, str(classsection.classteacher_id), "teacher")['user'])
+            return JSONResponse(content={"message":"ClassSection created Successfully!", "id": str(db_item.id)}, status_code=status.HTTP_201_CREATED)
+        except Exception as e:
+            if "Duplicate entry" in str(e):
+                e = "Email Already Exists!"
+            return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
+
+
+
+# WORK HERE!
+# Read ClassSection as per the filter
+@app.get("/api/classsection", response_model=list[models.ClassSection])
+async def getClassSection(
     current_user: Annotated[models.Admin, Depends(get_current_user)], 
     id: str = "*", 
     name: str = "*", 

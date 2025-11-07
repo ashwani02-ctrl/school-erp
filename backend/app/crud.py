@@ -32,7 +32,7 @@ def get_user_by_id(engine: Session, user_id, role):
     usermodel = determine_usermodel(role)
     if usermodel:
         statement = select(usermodel).where(usermodel.id==uuid.UUID(user_id))
-        return { "user": engine.exec(statement = statement).first(), "role":role.lower()}
+        return { "user": engine.exec(statement).first(), "role":role.lower()}      
     return None
 
 # Create User
@@ -465,6 +465,174 @@ def updateStudentUser(engine: Session, student: models.Student):
 
 # Delete Teacher User
 def deleteStudentUser(engine: Session, student: models.Student):
+    statement = select(models.Student).where(
+        models.Student.id == uuid.UUID(student.id),
+        models.Student.name == student.name,
+        models.Student.email  == student.email,
+        models.Student.phone == student.phone
+        )
+    results = engine.exec(statement)
+    student_user = results.one()
+    
+    print("selected teacher_user: ", student_user)
+    engine.delete(student_user)
+    engine.commit()
+    
+    deleted_user =  dict(student_user)
+    deleted_user['id'] = str(deleted_user['id'])
+    deleted_user['school_id'] = str(deleted_user['school_id'])
+    deleted_user.pop('password', None)
+    
+    deleted_user['school'] = {
+                "id": str(student_user.school.id),
+                "name":student_user.school.name,
+                "email":student_user.school.email,
+                "phone":student_user.school.phone,
+            }
+    return deleted_user
+
+
+
+
+
+# Create ClassSection
+def createClassSection(engine: Session, classname: str, schooluser: models.School, teacheruser: models.Teacher):
+    db_item = models.ClassSection(
+        classname = classname,
+        school = schooluser,
+        school_id = schooluser.id,
+        classteacher = teacheruser,
+        classteacher_id = teacheruser.id
+    )
+    
+    engine.add(db_item)
+    engine.commit()
+    engine.refresh(db_item)
+    return db_item
+
+# Get ClassSection
+def getClassSection(engine: Session, id: str, classname:str, school: models.School, teacher: models.Teacher):
+    
+    # if len(id.replace("-","")) != 32:
+    #     statement = select(models.ClassSection).where(
+    #             # defining filters
+    #             # models.ClassSection.id == id,
+    #             models.ClassSection.classname.like(f"%{classname}%"), 
+    #             models.ClassSection.teacher_id == teacher.id,
+    #             models.ClassSection.school_id == school.id,
+    #             # models.ClassSection.email.like(f"%{email}%"), 
+    #             # models.StClassSectionudent.phone.like(f"%{phone}%")
+    #         ).options(
+    #             selectinload(models.ClassSection.school),
+    #             selectinload(models.ClassSection.classteacher)
+    #                   )
+        
+    # else:
+    #     statement = select(models.ClassSection).where(
+    #             models.ClassSection.id == uuid.UUID(id), # id must be fixed
+    #             models.ClassSection.school_id == school.id,
+    #             models.ClassSection.name.like(f"%{name}%"), 
+    #             models.ClassSection.email.like(f"%{email}%"), 
+    #             models.ClassSection.phone.like(f"%{phone}%"),
+    #         ).options(selectinload(models.ClassSection.school))
+    
+    statement = select(models.ClassSection)
+    
+    
+    # Filters list
+    filters = list()
+    
+    if len(id.replace("-","")) == 32:
+        filters.append(models.ClassSection.id == uuid.UUID(id))
+        
+    if school.id:
+        filters.append(models.ClassSection.school_id == uuid.UUID(school.id))
+        
+    if teacher.id:
+        filters.append(models.ClassSection.classteacher_id == uuid.UUID(teacher.id))
+    
+    # Apply filters only if they exist
+    if filters:
+        statement = statement.where(*filters)
+        
+    
+    # Optionally preload relationships
+    statement = statement.options(
+        selectinload(models.ClassSection.school),
+        selectinload(models.ClassSection.classteacher),
+    )
+        
+        
+    
+    
+   
+    results = engine.exec(statement)
+    
+    output_list = list()
+    for result in results:    
+        output_list.append({
+            "id": str(result.id),
+            "classname":result.classname,
+            # "email":result.email,
+            # "phone":result.phone,
+            "school":{
+                "id": str(result.school.id),
+                "name":result.school.name,
+                "email":result.school.email,
+                "phone":result.school.phone,
+            },
+            "classteacher": {
+                "id": str(result.classteacher.id),
+                "name": result.classteacher.name,
+                "email": result.classteacher.email,
+                "phone": result.classteacher.phone,
+                "school":{
+                    "id": str(result.classteacher.school.id),
+                    "name":result.classteacher.school.name,
+                    "email":result.classteacher.school.email,
+                    "phone":result.classteacher.school.phone,
+            },
+                
+            }
+        })
+   
+    return output_list
+
+# Update ClassSection
+def updateClassSection(engine: Session, student: models.Student):
+    statement = select(models.Student).where(models.Student.id == uuid.UUID(student.id))
+    results = engine.exec(statement)
+    student_user = results.one()
+    
+    if student.password != "":
+        student_user.password = student.password
+    
+    student_user.name = student.name
+    student_user.email = student.email
+    student_user.phone = student.phone
+    
+    engine.add(student_user)
+    engine.commit()
+    engine.refresh(student_user)
+    print("Updated Student: ", student_user)
+    
+    
+    
+    updated_user =  dict(student_user)
+    updated_user['id'] = str(updated_user['id'])
+    updated_user['school_id'] = str(updated_user['school_id'])
+    updated_user.pop('password', None)
+    # updated_user.pop('created_by', None)
+    updated_user['school'] = {
+                "id": str(student_user.school.id),
+                "name":student_user.school.name,
+                "email":student_user.school.email,
+                "phone":student_user.school.phone,
+            }
+    return updated_user
+
+# Delete ClassSection
+def deleteClassSection(engine: Session, student: models.Student):
     statement = select(models.Student).where(
         models.Student.id == uuid.UUID(student.id),
         models.Student.name == student.name,

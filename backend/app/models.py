@@ -36,7 +36,7 @@ class School(SQLModel, table=True):
     admin_id: uuid.UUID = Field(default=None, foreign_key="admin.id", ondelete="CASCADE") # To delete related school records, if someone delete admin from DB directly.
     
     
-    # classes: list["ClassSection"] = Relationship(back_populates="school", cascade_delete=True)
+    classes: list["ClassSection"] = Relationship(back_populates="school", cascade_delete=True)
     # feeplan_ids : uuid.UUID = Field(default=None, foreign_key="feeplan.id")
     # feeplans : list["FeePlan"] = Relationship(back_populates="school")
     # feerecords : list["FeeRecord"] = Relationship(back_populates="school")
@@ -55,7 +55,7 @@ class Teacher(SQLModel, table=True):
 # #     created_on: datetime = Field(default_factory=datetime.now)
     school: School = Relationship(back_populates="teachers")
     school_id: uuid.UUID = Field(default=None, foreign_key="school.id", ondelete="CASCADE")
-#     # classsection : list["ClassSection"] = Relationship(back_populates="classteacher")
+    classsection : list["ClassSection"] = Relationship(back_populates="classteacher")
 #     # attendances : list["Attendance"] = Relationship(back_populates="teacher")
     
     
@@ -72,20 +72,22 @@ class Student(SQLModel, table=True):
 # #     created_on: datetime = Field(default_factory=datetime.now)
     school: School = Relationship(back_populates="students")
     school_id: uuid.UUID = Field(default=None, foreign_key="school.id", ondelete="CASCADE")
-#     # classsection : "ClassSection" = Relationship(back_populates="students")
+    classsection : "ClassSection" = Relationship(back_populates="students")
+    classsection_id: uuid.UUID = Field(default=None, foreign_key="classsection.id", ondelete="CASCADE")
 #     # attendances : list["Attendance"] = Relationship(back_populates="student")
 #     # feerecords : list["FeeRecord"] = Relationship(back_populates="student")
 
 
 # Class model
-# class ClassSection(SQLModel, table=True):
-#     id: int | None = Field(default=None, primary_key=True)
-#     classname: str
-#     classteacher : Teacher = Relationship(back_populates="classsection")
-#     school: School = Relationship(back_populates="classes")
-#     school_id: uuid.UUID = Field(default=None, foreign_key="school.id", ondelete="CASCADE")
-#     feeplan : "FeePlan" = Relationship(back_populates="classsection")
-#     students : list["Student"] = Relationship(back_populates="classsection")
+class ClassSection(SQLModel, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    school: School = Relationship(back_populates="classes")
+    school_id: uuid.UUID = Field(default=None, foreign_key="school.id", ondelete="CASCADE")
+    classname: str
+    classteacher : Teacher = Relationship(back_populates="classsection")
+    classteacher_id: uuid.UUID = Field(default=None, foreign_key = "teacher.id", ondelete="CASCADE")
+    # feeplan : "FeePlan" = Relationship(back_populates="classsection")
+    students : list["Student"] = Relationship(back_populates="classsection")
     
 
 # Attendance Record
