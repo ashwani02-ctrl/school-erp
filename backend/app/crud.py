@@ -511,21 +511,9 @@ def createClassSection(engine: Session, classname: str, schooluser: models.Schoo
     return db_item
 
 # Get ClassSection
-def getClassSection(engine: Session, id: str, classname:str, school: models.School, teacher: models.Teacher):
+def getClassSection(engine: Session, id: str, classname: str, school: models.School, classteacher: models.Teacher):
     
-    # if len(id.replace("-","")) != 32:
-    #     statement = select(models.ClassSection).where(
-    #             # defining filters
-    #             # models.ClassSection.id == id,
-    #             models.ClassSection.classname.like(f"%{classname}%"), 
-    #             models.ClassSection.teacher_id == teacher.id,
-    #             models.ClassSection.school_id == school.id,
-    #             # models.ClassSection.email.like(f"%{email}%"), 
-    #             # models.StClassSectionudent.phone.like(f"%{phone}%")
-    #         ).options(
-    #             selectinload(models.ClassSection.school),
-    #             selectinload(models.ClassSection.classteacher)
-    #                   )
+    
         
     # else:
     #     statement = select(models.ClassSection).where(
@@ -542,14 +530,19 @@ def getClassSection(engine: Session, id: str, classname:str, school: models.Scho
     # Filters list
     filters = list()
     
-    if len(id.replace("-","")) == 32:
+    # if len(id.replace("-","")) == 32: # record id
+    print(f"id: {id}, school.id: {school.id}, classteacher.id: {classteacher.id}")
+    if id != "*":
         filters.append(models.ClassSection.id == uuid.UUID(id))
         
     if school.id:
-        filters.append(models.ClassSection.school_id == uuid.UUID(school.id))
+        filters.append(models.ClassSection.school_id == school.id)
         
-    if teacher.id:
-        filters.append(models.ClassSection.classteacher_id == uuid.UUID(teacher.id))
+    if classteacher.id:
+        filters.append(models.ClassSection.classteacher_id == classteacher.id)
+        
+    if classname != "*":
+        filters.append(models.ClassSection.classname == classname)
     
     # Apply filters only if they exist
     if filters:

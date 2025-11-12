@@ -437,8 +437,6 @@ async def deleteStudentUser(student: models.Student, current_user: Annotated[mod
 async def createClassSection(classsection: models.ClassSection, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
     
     if current_user["role"] in ["admin","school"]:
-        # print("Current User id: ", current_user['user'])
-        # print("school: ", school)
         try:
             # password = random_password_generator()
             
@@ -456,35 +454,31 @@ async def createClassSection(classsection: models.ClassSection, current_user: An
 
 
 
-# WORK HERE!
+
 # Read ClassSection as per the filter
 @app.get("/api/classsection", response_model=list[models.ClassSection])
 async def getClassSection(
     current_user: Annotated[models.Admin, Depends(get_current_user)], 
-    id: str = "*", 
-    name: str = "*", 
-    email: Optional[str] = "*", 
-    phone : str="*",  
-    school_id: str="*",
+    id: str = "*", # record id
+    school_id: str = "*",
+    classteacher_id: str = "*",
+    classname: str="*",
     db: Session = Depends(get_session)):
     
-    if current_user["role"] in ["admin", "school"]:
-        if id=="*":
-            id=""
-        if name=="*":
-            name=""
-        if email=="*":
-            email=""
-        if phone=="*":
-            phone=""
-        
+    if current_user["role"] in ["admin", "school"]:    
         try:
             
             if current_user['role'] == 'school':
-                teacher_users = crud.getStudentUser(engine=db, id=id, name=name, email=email, phone=phone, school=current_user["user"])
+                if classteacher_id != "*":
+                    teacher = crud.get_user_by_id(db, classteacher_id, "teacher")['user']
+                else:
+                    teacher = models.Teacher()
+                    teacher.id = None
+                classsection_items = crud.getClassSection(engine=db, id=id, classname=classname, school=current_user["user"], classteacher = teacher)
             else:
-                teacher_users = crud.getStudentUser(engine=db, id=id, name=name, email=email, phone=phone, school=crud.get_user_by_id(db, school_id, "school")["user"])
-            return JSONResponse(content={"message":"Operation Successful", "data": teacher_users}, status_code=status.HTTP_200_OK)
+                pass
+                # teacher_users = crud.getStudentUser(engine=db, id=id, name=name, email=email, phone=phone, school=crud.get_user_by_id(db, school_id, "school")["user"])
+            return JSONResponse(content={"message":"Operation Successful", "data": classsection_items}, status_code=status.HTTP_200_OK)
         
         except Exception as e:
              return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
