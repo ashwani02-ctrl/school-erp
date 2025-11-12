@@ -492,18 +492,18 @@ async def getClassSection(
         
     return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
 
-# Update ClassSection - skipped in MVP
-@app.put("/api/classsection", response_model=models.Student)
-async def updateClassSection(student: models.Student, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
+# Update ClassSection 
+@app.put("/api/classsection", response_model=models.ClassSection)
+async def updateClassSection(classsection: models.ClassSection, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
     if current_user["role"] in ["admin", "school"]:
         
-        # print("admin schema: ", admin)
-        if student.password != "":
-            student.password = hash_password(student.password)
+        
         try:
-            updated_user = crud.updateStudentUser(engine=db, student=student)
-            print("updated_user: ", updated_user)
-            return JSONResponse(content={"message":"Student update successful!", "data": updated_user}, status_code=status.HTTP_200_OK)
+            classsection.school = crud.get_user_by_id(engine=db, user_id=classsection.school_id, role="school")["user"]
+            classsection.classteacher = crud.get_user_by_id(engine=db, user_id=classsection.classteacher_id, role="teacher")["user"]
+            updated_classsection = crud.updateClassSection(engine=db, classsection=classsection)
+            print("updated_classsection: ", updated_classsection)
+            return JSONResponse(content={"message":"ClassSection update successful!", "data": updated_classsection}, status_code=status.HTTP_200_OK)
         except Exception as e:
             return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
@@ -521,8 +521,9 @@ async def deleteClassSection(student: models.Student, current_user: Annotated[mo
             return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
+# End ClassSection
 
-# End Student Users
+
 
 
 

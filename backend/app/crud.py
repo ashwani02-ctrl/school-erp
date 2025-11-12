@@ -591,63 +591,44 @@ def getClassSection(engine: Session, id: str, classname: str, school: models.Sch
    
     return output_list
 
-# Update ClassSection
-def updateClassSection(engine: Session, student: models.Student):
-    statement = select(models.Student).where(models.Student.id == uuid.UUID(student.id))
-    results = engine.exec(statement)
-    student_user = results.one()
-    
-    if student.password != "":
-        student_user.password = student.password
-    
-    student_user.name = student.name
-    student_user.email = student.email
-    student_user.phone = student.phone
-    
-    engine.add(student_user)
-    engine.commit()
-    engine.refresh(student_user)
-    print("Updated Student: ", student_user)
-    
-    
-    
-    updated_user =  dict(student_user)
-    updated_user['id'] = str(updated_user['id'])
-    updated_user['school_id'] = str(updated_user['school_id'])
-    updated_user.pop('password', None)
-    # updated_user.pop('created_by', None)
-    updated_user['school'] = {
-                "id": str(student_user.school.id),
-                "name":student_user.school.name,
-                "email":student_user.school.email,
-                "phone":student_user.school.phone,
-            }
-    return updated_user
+#
 
-# Delete ClassSection
-def deleteClassSection(engine: Session, student: models.Student):
-    statement = select(models.Student).where(
-        models.Student.id == uuid.UUID(student.id),
-        models.Student.name == student.name,
-        models.Student.email  == student.email,
-        models.Student.phone == student.phone
-        )
+# Update ClassSection
+def updateClassSection(engine: Session, classsection: models.ClassSection):
+    statement = select(models.ClassSection).where(models.ClassSection.id == uuid.UUID(classsection.id))
     results = engine.exec(statement)
-    student_user = results.one()
+    classsection_record = results.one()
+
     
-    print("selected teacher_user: ", student_user)
-    engine.delete(student_user)
+    classsection_record.classname = classsection.classname
+    classsection_record.school = classsection.school
+    classsection_record.school_id = classsection.school.id
+    classsection_record.classteacher = classsection.classteacher
+    classsection_record.classteacher_id = classsection.classteacher.id
+    
+    
+    engine.add(classsection_record)
     engine.commit()
+    engine.refresh(classsection_record)
+    print("Updated classSection: ", classsection_record)
     
-    deleted_user =  dict(student_user)
-    deleted_user['id'] = str(deleted_user['id'])
-    deleted_user['school_id'] = str(deleted_user['school_id'])
-    deleted_user.pop('password', None)
     
-    deleted_user['school'] = {
-                "id": str(student_user.school.id),
-                "name":student_user.school.name,
-                "email":student_user.school.email,
-                "phone":student_user.school.phone,
+    
+    updated_classsection =  dict(classsection_record)
+    updated_classsection['id'] = str(updated_classsection['id'])
+    updated_classsection['school_id'] = str(updated_classsection['school_id'])
+    updated_classsection['classteacher_id'] = str(updated_classsection['classteacher_id'])
+    # updated_user.pop('created_by', None)
+    updated_classsection['school'] = {
+                "id": str(classsection_record.school.id),
+                "name":classsection_record.school.name,
+                "email":classsection_record.school.email,
+                "phone":classsection_record.school.phone,
             }
-    return deleted_user
+    updated_classsection['classteacher'] = {
+                "id": str(classsection_record.classteacher.id),
+                "name":classsection_record.classteacher.name,
+                "email":classsection_record.classteacher.email,
+                "phone":classsection_record.classteacher.phone,
+            }
+    return updated_classsection
