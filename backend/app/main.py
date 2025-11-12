@@ -468,16 +468,23 @@ async def getClassSection(
     if current_user["role"] in ["admin", "school"]:    
         try:
             
-            if current_user['role'] == 'school':
-                if classteacher_id != "*":
-                    teacher = crud.get_user_by_id(db, classteacher_id, "teacher")['user']
+            if current_user['role'] != 'school':
+                if school_id != "*":
+                    school = crud.get_user_by_id(db, school_id, "school")['user']
                 else:
-                    teacher = models.Teacher()
-                    teacher.id = None
-                classsection_items = crud.getClassSection(engine=db, id=id, classname=classname, school=current_user["user"], classteacher = teacher)
+                    school = models.School()
+                    school.id = None
             else:
-                pass
-                # teacher_users = crud.getStudentUser(engine=db, id=id, name=name, email=email, phone=phone, school=crud.get_user_by_id(db, school_id, "school")["user"])
+                school=current_user["user"]
+                
+            if classteacher_id != "*":
+                teacher = crud.get_user_by_id(db, classteacher_id, "teacher")['user']
+            else:
+                teacher = models.Teacher()
+                teacher.id = None    
+                
+            classsection_items = crud.getClassSection(engine=db, id=id, classname=classname, school=school, classteacher = teacher)
+               
             return JSONResponse(content={"message":"Operation Successful", "data": classsection_items}, status_code=status.HTTP_200_OK)
         
         except Exception as e:
@@ -485,9 +492,9 @@ async def getClassSection(
         
     return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
 
-# Update Student user
-@app.put("/api/student", response_model=models.Student)
-async def updateStudentUser(student: models.Student, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
+# Update ClassSection - skipped in MVP
+@app.put("/api/classsection", response_model=models.Student)
+async def updateClassSection(student: models.Student, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
     if current_user["role"] in ["admin", "school"]:
         
         # print("admin schema: ", admin)
@@ -502,9 +509,9 @@ async def updateStudentUser(student: models.Student, current_user: Annotated[mod
         
     return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
 
-# Delete Student user
-@app.delete("/api/student", response_model=models.Student)
-async def deleteStudentUser(student: models.Student, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
+# Delete ClassSection - skipped in MVP
+@app.delete("/api/classsection", response_model=models.Student)
+async def deleteClassSection(student: models.Student, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
     if current_user["role"] in ["admin","school"]:
         try:
             deleted_user = crud.deleteStudentUser(engine=db, student=student)
@@ -516,6 +523,8 @@ async def deleteStudentUser(student: models.Student, current_user: Annotated[mod
     return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
 
 # End Student Users
+
+
 
 if __name__ == "__main__":
     print(get_session())
