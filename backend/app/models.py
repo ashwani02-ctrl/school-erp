@@ -64,7 +64,8 @@ class Teacher(SQLModel, table=True):
 class Student(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     name: str
-    email: EmailStr = Field(nullable=False, unique=True, primary_key=True)
+    # email: EmailStr = Field(nullable=False, unique=True, primary_key=True)
+    email: EmailStr = Field(nullable=False, unique=True)
     phone: str = Field(max_length=15)
     password: str
 # #     standard : str | None
@@ -72,8 +73,8 @@ class Student(SQLModel, table=True):
 # #     created_on: datetime = Field(default_factory=datetime.now)
     school: School = Relationship(back_populates="students")
     school_id: uuid.UUID = Field(default=None, foreign_key="school.id", ondelete="CASCADE")
-    classsection : "ClassSection" = Relationship(back_populates="students")
-    classsection_id: uuid.UUID = Field(default=None, foreign_key="classsection.id", ondelete="CASCADE")
+    classsection : "ClassSection" = Relationship(back_populates="students", passive_deletes=True)
+    classsection_id: uuid.UUID = Field(foreign_key="classsection.id", ondelete="CASCADE")
 #     # attendances : list["Attendance"] = Relationship(back_populates="student")
 #     # feerecords : list["FeeRecord"] = Relationship(back_populates="student")
 
@@ -87,7 +88,7 @@ class ClassSection(SQLModel, table=True):
     classteacher : Teacher = Relationship(back_populates="classsection")
     classteacher_id: uuid.UUID = Field(default=None, foreign_key = "teacher.id", ondelete="CASCADE")
     # feeplan : "FeePlan" = Relationship(back_populates="classsection")
-    students : list["Student"] = Relationship(back_populates="classsection")
+    students : list["Student"] = Relationship(back_populates="classsection", passive_deletes=True)
     
 
 # Attendance Record

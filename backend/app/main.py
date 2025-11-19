@@ -513,11 +513,11 @@ async def updateClassSection(classsection: models.ClassSection, current_user: An
     return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
 
 # Delete ClassSection
-@app.delete("/api/classsection", response_model=models.ClassSection)
-async def deleteClassSection(classsection: models.ClassSection, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
+@app.delete("/api/classsection/{id}")
+async def deleteClassSection(id: str, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
     if current_user["role"] in ["admin","school"]:
         try:
-            deleted_record = crud.deleteClassSection(engine=db, classsection=classsection)
+            deleted_record = crud.deleteClassSection(engine=db, classsection_id=id)
             print("deleted_user: ", deleted_record)
             return JSONResponse(content={"message":"Record deletion successful!", "data": deleted_record}, status_code=status.HTTP_200_OK)
         except Exception as e:

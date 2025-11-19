@@ -666,19 +666,19 @@ def updateClassSection(engine: Session, classsection: models.ClassSection):
 
 
 # Delete ClassSection
-def deleteClassSection(engine: Session, classsection: models.ClassSection):
+def deleteClassSection(engine: Session, classsection_id: str):
     statement = select(models.ClassSection).where(
-        models.ClassSection.id == uuid.UUID(classsection.id),
-        models.ClassSection.classname == classsection.classname,
-        models.ClassSection.school_id  == uuid.UUID(classsection.school_id),
-        models.ClassSection.classteacher_id == uuid.UUID(classsection.classteacher_id)
+        models.ClassSection.id == uuid.UUID(classsection_id),
+        # models.ClassSection.classname == classsection.classname,
+        # models.ClassSection.school_id  == uuid.UUID(classsection.school_id),
+        # models.ClassSection.classteacher_id == uuid.UUID(classsection.classteacher_id)
         )
     results = engine.exec(statement)
     classsection_record = results.one()
     
     print("selected classsection_record: ", classsection_record)
     engine.delete(classsection_record)
-    # engine.commit()
+    engine.commit()
     
     deleted_record =  dict(classsection_record)
     deleted_record['id'] = str(deleted_record['id'])
