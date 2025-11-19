@@ -3,13 +3,36 @@ from . import models, schema
 import uuid
 
 
+# Mapping for item type
+item_types = {
+    "classsection": models.ClassSection,
+}
+
+# determine item model
+def determine_itemmodel(item_type: str):
+    if item_type.lower() in item_types.keys():
+        item_model = item_types[item_type.lower()]
+        return item_model
+    return None
+
+# Get things by id
+def get_items_by_id(engine: Session, item_id, item_type):
+    item_model = determine_itemmodel(item_type=item_type)
+    if item_model:
+        print("item_type: ", item_type)    
+        print("item_id: ", item_id)
+        statement = select(item_model).where(item_model.id==uuid.UUID(item_id))
+        return engine.exec(statement).first()      
+    print("Not worked for given item_type")
+    return None
+
+# Mapping of user roles
 roles = {
     "admin":models.Admin,
     "school":models.School,
     "teacher":models.Teacher,
-    "student":models.Student
+    "student":models.Student,
 }
-
 def determine_usermodel(role: str):
     if role.lower() in roles.keys():
         usermodel = roles[role.lower()]
@@ -34,6 +57,8 @@ def get_user_by_id(engine: Session, user_id, role):
         statement = select(usermodel).where(usermodel.id==uuid.UUID(user_id))
         return { "user": engine.exec(statement).first(), "role":role.lower()}      
     return None
+
+
 
 # Create User
 def createAdminUser(engine: Session, adminuser: models.Admin, password: str):
@@ -373,15 +398,20 @@ def deleteTeacherUser(engine: Session, teacher: models.Teacher):
 
 
 # Create Student User
-def createStudentUser(engine: Session, schooluser: models.School, studentuser: models.Student, password: str):
+def createStudentUser(engine: Session, schooluser: models.School, studentuser: models.Student, password: str, classsection: models.ClassSection):
+    print("classsection: ", classsection)
     db_user = models.Student(
         name = studentuser.name,
         password = password,
         email= studentuser.email,
         phone= studentuser.phone,
         school= schooluser,
-        school_id = schooluser.id
+        school_id = schooluser.id,
+        classsection=classsection,
+        classsection_id= classsection.id
     )
+    
+    print("classsection: ", classsection)
     
     engine.add(db_user)
     engine.commit()
@@ -463,7 +493,7 @@ def updateStudentUser(engine: Session, student: models.Student):
             }
     return updated_user
 
-# Delete Teacher User
+# Delete Student User
 def deleteStudentUser(engine: Session, student: models.Student):
     statement = select(models.Student).where(
         models.Student.id == uuid.UUID(student.id),
@@ -632,3 +662,42 @@ def updateClassSection(engine: Session, classsection: models.ClassSection):
                 "phone":classsection_record.classteacher.phone,
             }
     return updated_classsection
+
+
+
+# Delete ClassSection
+def deleteClassSection(engine: Session, classsection: models.ClassSection):
+    statement = select(models.ClassSection).where(
+        models.ClassSection.id == uuid.UUID(classsection.id),
+        models.ClassSection.classname == classsection.classname,
+        models.ClassSection.school_id  == uuid.UUID(classsection.school_id),
+        models.ClassSection.classteacher_id == uuid.UUID(classsection.classteacher_id)
+        )
+    results = engine.exec(statement)
+    classsection_record = results.one()
+    
+    print("selected classsection_record: ", classsection_record)
+    engine.delete(classsection_record)
+    # engine.commit()
+    
+    deleted_record =  dict(classsection_record)
+    deleted_record['id'] = str(deleted_record['id'])
+    deleted_record['school_id'] = str(deleted_record['school_id'])
+    deleted_record['classteacher_id'] = str(deleted_record['classteacher_id'])
+    
+    
+    deleted_record['school'] = {
+                "id": str(classsection_record.school.id),
+                "name":classsection_record.school.name,
+                "email":classsection_record.school.email,
+                "phone":classsection_record.school.phone,
+            }
+    
+    deleted_record['classteacher'] = {
+                "id": str(classsection_record.classteacher.id),
+                "name":classsection_record.classteacher.name,
+                "email":classsection_record.classteacher.email,
+                "phone":classsection_record.classteacher.phone,
+            }
+    return deleted_record
+

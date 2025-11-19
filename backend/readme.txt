@@ -55,3 +55,27 @@ school jwt:
 }
 
 eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiI2NzllMDI0OC0zNWJlLTQ3NmUtYTc4Yy1hNWQ1Y2I2MThiYTkiLCJyb2xlIjoic2Nob29sIn0.e984zmYSGhqZkeWXLChs6HCA2KvlNmWXClUf6TAzaTerrN1DhPrZNQdiAOJQIxqtysWmbs1V3w5eYOsydkeZHC8GXUORFzTsj9071gZ4CDg4ylfTgF5TzkZXtaHRI9yJVqc-e5b_l748nzkhP8-PhKP9VfFmg5gpQAZq4KwbrBJ0TRC5RwNFXrZpGva5g_jcixUZgKJz189CPUM8Q5lT6yR5GD_b8EOeIjiKiIlZwLBnC5HhY2CIS5bPoWfJdy9sNggUQiVp7pK9UonuXVdK1sbH5YL5jPy-O7umoOk5FVdfYuOiKJDV2jXQLH52x2JFd1oWCvvCdmtWcSV2vsOTeK_FnphzVz97BGeZNvRBBLlQguapFAQ2PasIbqdqLEEYGP59nWNIYBLlyvFUfuoskCGxbvcAUpgWosvhW7A6ahD-0PAlLmFUpxapUgGR97z6HA0MGZNZTUZnAhHKbWkdJRD6Alefc1k9pkUKmXFWth24z18TkYOWnFb1330-RNRG
+
+student jwt:
+
+{
+    "name":"student",
+    "email":"student@example.com",
+    "phone":"2908765431",
+    "school_id":"679e024835be476ea78ca5d5cb618ba9",
+    "classsection_id":"1b29662ef7f04fb0bc2e81dbb3655bb7"
+    
+}
+
+
+
+
+{
+    "email":"student1@example.com",
+    "password":"simple",
+    "role":"student"
+}
+
+WHILE CREATING SCHOOL user
+1. make crud method to get classsection reecord from db, like we do for get_user_by_id
+2. make classseciton to be a part, while creating a student user, because while deleting the classsection user, it will also delete a student user by CASCADE effect!

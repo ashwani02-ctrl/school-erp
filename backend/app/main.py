@@ -343,16 +343,19 @@ async def deleteTeacherUser(teacher: models.Teacher, current_user: Annotated[mod
 @app.post("/api/student", response_model=models.Student) # response_model tells the output schema
 async def createStudentUser(student: models.Student, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
     
+    
+    
     if current_user["role"] in ["admin","school"]:
-        # print("Current User id: ", current_user['user'])
-        # print("school: ", school)
+        
         try:
             password = random_password_generator()
             
             if current_user['role'] == 'school':
-                db_user = crud.createStudentUser(db, current_user['user'], student, hash_password(password))
+                # WORKING HERE
+                db_user = crud.createStudentUser(db, current_user['user'], student, hash_password(password), classsection=crud.get_items_by_id(db, item_id=student.classsection_id, item_type="classsection"))
             else:
-                db_user = crud.createStudentUser(db, crud.get_user_by_id(db, str(student.school_id), "school")['user'], student, hash_password(password))
+                db_user = crud.createStudentUser(db, crud.get_user_by_id(db, str(student.school_id), "school")['user'], student, hash_password(password), classsection=crud.get_items_by_id(db, item_id=student.classsection_id, item_type="classsection"))
+                
             return JSONResponse(content={"message":"User created Successfully!", "uid": str(db_user.id)}, status_code=status.HTTP_201_CREATED)
         except Exception as e:
             if "Duplicate entry" in str(e):
@@ -509,14 +512,14 @@ async def updateClassSection(classsection: models.ClassSection, current_user: An
         
     return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
 
-# Delete ClassSection - skipped in MVP
-@app.delete("/api/classsection", response_model=models.Student)
-async def deleteClassSection(student: models.Student, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
+# Delete ClassSection
+@app.delete("/api/classsection", response_model=models.ClassSection)
+async def deleteClassSection(classsection: models.ClassSection, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
     if current_user["role"] in ["admin","school"]:
         try:
-            deleted_user = crud.deleteStudentUser(engine=db, student=student)
-            print("deleted_user: ", deleted_user)
-            return JSONResponse(content={"message":"User deletion successful!", "data": deleted_user}, status_code=status.HTTP_200_OK)
+            deleted_record = crud.deleteClassSection(engine=db, classsection=classsection)
+            print("deleted_user: ", deleted_record)
+            return JSONResponse(content={"message":"Record deletion successful!", "data": deleted_record}, status_code=status.HTTP_200_OK)
         except Exception as e:
             return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
