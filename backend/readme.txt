@@ -79,3 +79,6 @@ student jwt:
 WHILE CREATING SCHOOL user
 1. make crud method to get classsection reecord from db, like we do for get_user_by_id
 2. make classseciton to be a part, while creating a student user, because while deleting the classsection user, it will also delete a student user by CASCADE effect!
+
+
+CRUD for classsection created, now working on Attendance.

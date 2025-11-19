@@ -37,10 +37,12 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: Se
     decoded_token = decoding(token)
     # print(type(decoded_token["data"]))
     # print("Decoded token: ", decoded_token)
+    print("decoded_token: ", decoded_token)
     
     
     user = crud.get_user_by_id(engine = db, user_id=decoded_token["data"]["uid"], role=decoded_token["data"]["role"])
     
+    print("user: ", user)
     if user == None:
         raise Exception(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -525,6 +527,106 @@ async def deleteClassSection(id: str, current_user: Annotated[models.Admin, Depe
         
     return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
 # End ClassSection
+
+# Attendance
+# Create a Attendance
+@app.post("/api/attendance", response_model=models.Attendance) # response_model tells the output schema
+async def createAttendance(attendance: models.Attendance, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
+    
+    if current_user["role"] in ["admin","school", "teacher"]:
+        try:
+            # password = random_password_generator()
+            
+            # if current_user['role'] == 'school':
+            #     db_item = crud.createClassSection(db, classsection.classname, current_user['user'], crud.get_user_by_id(db, str(classsection.classteacher_id), "teacher")['user'])
+            # else:
+            #     db_item = crud.createClassSection(db, classsection.classname, crud.get_user_by_id(db, str(classsection.school_id), "school")['user'], crud.get_user_by_id(db, str(classsection.classteacher_id), "teacher")['user'])
+            
+            # Class Name
+            classsection = crud.get_items_by_id(engine=db, item_id=attendance.classsection_id, item_type="classsection")
+            attendance.class_name = classsection.classname
+            
+            # Student Name
+            student = crud.get_user_by_id(engine=db, user_id=attendance.student_id, role="student")["user"]
+            attendance.student_name = student.name
+            
+            # Teacher Name
+            teacher = crud.get_user_by_id(engine=db, user_id=attendance.teacher_id, role="teacher")["user"]
+            attendance.teacher_name = teacher.name
+            
+            # School
+            school = crud.get_user_by_id(engine=db, user_id=attendance.school_id, role="school")["user"]
+            attendance.school = school
+            
+            db_item = crud.createAttendance(db, attendance = attendance)
+            return JSONResponse(content={"message":"Attendance created Successfully!", "id": str(db_item.id)}, status_code=status.HTTP_201_CREATED)
+        except Exception as e:
+            if "Duplicate entry" in str(e):
+                e = "Duplication occurred!"
+            return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
+
+
+
+
+# Read Attendance as per the filter
+@app.get("/api/attendance", response_model=list[models.Attendance])
+async def getAttendance(
+    current_user: Annotated[models.Admin, Depends(get_current_user)], 
+    school_id: str,
+    id: str = "*", # record id
+    attendance_status: str="*",
+    student_name: str = "*",
+    class_name: str="*",
+    teacher_name: str="*",
+    attendance_date: str="*",
+    db: Session = Depends(get_session)):
+    
+    if current_user["role"] in ["admin", "school", "teacher"]:    
+        try:
+            
+            school = crud.get_user_by_id(engine=db, user_id=school_id, role="school")["user"]
+            
+            print("school is: ", school)
+            attendance_items = crud.getAttendance(engine=db, id=id, attendance_status=attendance_status, attendance_date=attendance_date, student_name=student_name, class_name=class_name, teacher_name=teacher_name, school=school)
+               
+            return JSONResponse(content={"message":"Operation Successful", "data": attendance_items}, status_code=status.HTTP_200_OK)
+        
+        except Exception as e:
+             return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
+
+# Update Attendance 
+@app.put("/api/attendance", response_model=models.Attendance)
+async def updateAttendance(attendance: models.Attendance, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
+    if current_user["role"] in ["admin", "school", "teacher"]:
+        try:
+            updated_attendance = crud.updateAttendance(engine=db, attendance=attendance)
+            
+            print("updated_attendance: ", updated_attendance)
+            
+            return JSONResponse(content={"message":"Attendance update successful!", "data": updated_attendance}, status_code=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
+
+# Delete Attendance
+@app.delete("/api/attendance/{id}")
+async def deleteAttendance(id: str, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
+    if current_user["role"] in ["admin","school", "teacher"]:
+        try:
+            deleted_record = crud.deleteAttendance(engine=db, id=id)
+            print("deleted_attendance: ", deleted_record)
+            return JSONResponse(content={"message":"Record deletion successful!", "data": deleted_record}, status_code=status.HTTP_200_OK)
+        except Exception as e:
+            return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
+# End Attendance
 
 
 

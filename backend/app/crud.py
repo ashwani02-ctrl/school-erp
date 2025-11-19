@@ -55,6 +55,7 @@ def get_user_by_id(engine: Session, user_id, role):
     usermodel = determine_usermodel(role)
     if usermodel:
         statement = select(usermodel).where(usermodel.id==uuid.UUID(user_id))
+        print("statement: ", statement)
         return { "user": engine.exec(statement).first(), "role":role.lower()}      
     return None
 
@@ -699,5 +700,188 @@ def deleteClassSection(engine: Session, classsection_id: str):
                 "email":classsection_record.classteacher.email,
                 "phone":classsection_record.classteacher.phone,
             }
+    return deleted_record
+
+# End ClassSection
+
+
+
+# Attendance
+# Create Attendance
+from datetime import datetime as dt, date
+
+def createAttendance(engine: Session, attendance: models.Attendance):
+    current_time = dt.now()
+    db_item = models.Attendance(
+        attendance_date = date(year=current_time.year, month=current_time.month, day = current_time.day),
+        attendance_status = attendance.attendance_status,
+        
+        student_id = uuid.UUID(attendance.student_id),
+        classsection_id = uuid.UUID(attendance.classsection_id),
+        teacher_id = uuid.UUID(attendance.teacher_id),
+        
+        student_name = attendance.student_name,
+        class_name = attendance.class_name,
+        teacher_name = attendance.teacher_name,
+        
+        school_id = attendance.school_id,
+        school = attendance.school
+    )
+    
+    engine.add(db_item)
+    engine.commit()
+    engine.refresh(db_item)
+    return db_item
+
+# Get Attendance
+from datetime import date
+
+def getAttendance(engine: Session, id: str, attendance_status: str, attendance_date: date, student_name: str, class_name: str, teacher_name: str, school: models.School):
+    
+    # Search basis: timestamp, status, student name, class name, teacher name, school id
+        
+    statement = select(models.Attendance)
+    
+    
+    # Filters list
+    filters = list()
+    
+    
+    # Record id
+    # print("id is: ",)
+    if id != "*":
+        filters.append(models.Attendance.id == uuid.UUID(id))
+        
+    if school.id:
+        filters.append(models.Attendance.school_id == school.id)
+        
+    if teacher_name != "*":
+        filters.append(models.Attendance.teacher_name.like(f"%{teacher_name}%"))
+        
+    if class_name != "*":
+        filters.append(models.Attendance.class_name.like(f"%{class_name}%"))
+    
+    if student_name != "*":
+        filters.append(models.Attendance.student_name.like(f"%{student_name}%"))
+        
+    if attendance_date !="*":
+        date_list = attendance_date.split("-")
+        filters.append(models.Attendance.attendance_date == date(int(date_list[0]), int(date_list[1]), int(date_list[2])))
+    
+    if attendance_status != "*":
+        filters.append(models.Attendance.attendance_status.like(f"%{attendance_status}%"))
+        
+        
+    
+    # Apply filters only if they exist
+    if filters:
+        statement = statement.where(*filters)
+        
+    
+    # Optionally preload relationships
+    statement = statement.options(
+        selectinload(models.Attendance.school),
+    )
+        
+    results = engine.exec(statement)
+    
+    output_list = list()
+    for result in results:    
+        output_list.append({
+            "id": str(result.id),
+            "attendance_date":str(result.attendance_date),
+            "status":result.attendance_status,
+            "student_name":result.student_name,
+            "class_name":result.class_name,
+            "teacher_name":result.teacher_name,
+            "school":{
+                "id": str(result.school.id),
+                "name":result.school.name,
+                "email":result.school.email,
+                "phone":result.school.phone,
+            },
+            
+        })
+   
+    return output_list
+
+# #
+
+# Update Attendance
+def updateAttendance(engine: Session, attendance: models.Attendance):
+    statement = select(models.Attendance).where(models.Attendance.id == uuid.UUID(attendance.id))
+    results = engine.exec(statement)
+    attendance_record = results.one()
+
+    
+    attendance_record.attendance_status = attendance.attendance_status
+    # classsection_record.school = classsection.school
+    # classsection_record.school_id = classsection.school.id
+    # classsection_record.classteacher = classsection.classteacher
+    # classsection_record.classteacher_id = classsection.classteacher.id
+    
+    
+    engine.add(attendance_record)
+    engine.commit()
+    engine.refresh(attendance_record)
+    print("Updated classSection: ", attendance_record)
+    
+    
+    
+    updated_attendance =  dict(attendance_record)
+    updated_attendance['id'] = str(updated_attendance['id'])
+    updated_attendance['school_id'] = str(updated_attendance['school_id'])
+    updated_attendance['teacher_id'] = str(updated_attendance['teacher_id'])
+    updated_attendance['classsection_id'] = str(updated_attendance['classsection_id'])
+    updated_attendance['student_id'] = str(updated_attendance['student_id'])
+    updated_attendance['attendance_date'] = str(updated_attendance['attendance_date'])
+    
+    
+    
+    # updated_user.pop('created_by', None)
+    updated_attendance['school'] = {
+                "id": str(attendance_record.school.id),
+                "name":attendance_record.school.name,
+                "email":attendance_record.school.email,
+                "phone":attendance_record.school.phone,
+            }
+    
+    return updated_attendance
+
+
+
+# Delete Attendance
+def deleteAttendance(engine: Session, id: str):
+    statement = select(models.Attendance).where(
+        models.Attendance.id == uuid.UUID(id),
+        # models.ClassSection.classname == classsection.classname,
+        # models.ClassSection.school_id  == uuid.UUID(classsection.school_id),
+        # models.ClassSection.classteacher_id == uuid.UUID(classsection.classteacher_id)
+        )
+    results = engine.exec(statement)
+    attendance_record = results.one()
+    
+    print("selected attendance_record: ", attendance_record)
+    engine.delete(attendance_record)
+    engine.commit()
+    
+    deleted_record =  dict(attendance_record)
+    deleted_record['id'] = str(deleted_record['id'])
+    deleted_record['school_id'] = str(deleted_record['school_id'])
+    deleted_record['teacher_id'] = str(deleted_record['teacher_id'])
+    deleted_record['student_id'] = str(deleted_record['student_id'])
+    deleted_record['classsection_id'] = str(deleted_record['classsection_id'])
+    deleted_record['attendance_date'] = str(deleted_record['attendance_date'])
+    
+    
+    
+    
+    deleted_record['school'] = {
+                "id": str(attendance_record.school.id),
+                "name":attendance_record.school.name,
+                "email":attendance_record.school.email,
+                "phone":attendance_record.school.phone,
+            }
+    
     return deleted_record
 

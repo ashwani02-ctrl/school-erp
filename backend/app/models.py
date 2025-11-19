@@ -1,6 +1,6 @@
 from sqlmodel import Field, SQLModel, Relationship
 from pydantic import EmailStr
-from datetime import datetime
+from datetime import date
 
 import uuid
 
@@ -40,6 +40,7 @@ class School(SQLModel, table=True):
     # feeplan_ids : uuid.UUID = Field(default=None, foreign_key="feeplan.id")
     # feeplans : list["FeePlan"] = Relationship(back_populates="school")
     # feerecords : list["FeeRecord"] = Relationship(back_populates="school")
+    attendances : list["Attendance"] = Relationship(back_populates="school")
     
 
 # Teacher SET NULL on attendance list
@@ -86,18 +87,31 @@ class ClassSection(SQLModel, table=True):
     school_id: uuid.UUID = Field(default=None, foreign_key="school.id", ondelete="CASCADE")
     classname: str
     classteacher : Teacher = Relationship(back_populates="classsection")
-    classteacher_id: uuid.UUID = Field(default=None, foreign_key = "teacher.id", ondelete="CASCADE")
+    classteacher_id: uuid.UUID = Field(foreign_key = "teacher.id", ondelete="CASCADE")
     # feeplan : "FeePlan" = Relationship(back_populates="classsection")
     students : list["Student"] = Relationship(back_populates="classsection", passive_deletes=True)
     
 
 # Attendance Record
-# class Attendance(SQLModel, table=True):
-#     id : uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-#     timestamp : datetime 
-#     student : Student = Relationship(back_populates="attendances")
-#     teacher : Teacher = Relationship(back_populates="attendances")
-#     status : str
+class Attendance(SQLModel, table=True):
+    id : uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    
+    attendance_date : date
+    attendance_status : str # Present/Absent/Leave/Late etc.
+    
+    # Foreign Keys (nullable, because teacher/student/class may be deleted)
+    student_id: uuid.UUID | None = Field(foreign_key="student.id", ondelete="SET NULL")
+    classsection_id: uuid.UUID | None = Field(foreign_key="classsection.id", ondelete="SET NULL")
+    teacher_id: uuid.UUID | None = Field(foreign_key="teacher.id", ondelete="SET NULL")
+
+    # Snapshot fields
+    student_name: str
+    class_name: str
+    teacher_name: str
+    
+    # School
+    school: School = Relationship(back_populates="attendances")
+    school_id: uuid.UUID = Field(default=None, foreign_key="school.id", ondelete="CASCADE")
 
 # Fee Plan
 # class FeePlan(SQLModel, table=True):
