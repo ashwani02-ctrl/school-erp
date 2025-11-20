@@ -874,8 +874,6 @@ def deleteAttendance(engine: Session, id: str):
     deleted_record['attendance_date'] = str(deleted_record['attendance_date'])
     
     
-    
-    
     deleted_record['school'] = {
                 "id": str(attendance_record.school.id),
                 "name":attendance_record.school.name,
@@ -884,4 +882,181 @@ def deleteAttendance(engine: Session, id: str):
             }
     
     return deleted_record
+# End Attendance
 
+
+# FeePlan
+# Create FeePlan
+# from datetime import datetime as dt, date
+
+def createFeePlan(engine: Session, feeplan: models.FeePlan):
+    
+    mydate = feeplan.alert_date.split("-")
+    year = int(mydate[0])
+    month = int(mydate[1])
+    
+    
+    # month = 
+    db_item = models.FeePlan(
+        
+        school = feeplan.school,
+        school_id = feeplan.school_id,
+        
+        classsection_id = uuid.UUID(feeplan.classsection_id),
+        class_name = feeplan.class_name,
+        
+        fee = feeplan.fee,
+        
+        alert_date= date(year=year, month = month, day=1)
+    )
+    
+    engine.add(db_item)
+    engine.commit()
+    engine.refresh(db_item)
+    return db_item
+
+# Get FeePlan
+# from datetime import date
+
+def getFeePlan(engine: Session, id: str, classsection_id: str, class_name: str, fee: str, alert_date: str, school=models.School):
+    
+    # Search basis: classsection_id, class_name, fee, school_id, alert_date
+        
+    statement = select(models.FeePlan)
+    
+    
+    # Filters list
+    filters = list()
+    
+    
+    # Record id
+    # print("id is: ",)
+    if id != "*":
+        filters.append(models.FeePlan.id == uuid.UUID(id))
+        
+    if school.id:
+        filters.append(models.FeePlan.school_id == school.id)
+        
+    if classsection_id != "*":
+        filters.append(models.FeePlan.classsection_id == uuid.UUID(classsection_id))
+        
+        
+    if class_name != "*":
+        filters.append(models.FeePlan.class_name.like(f"%{class_name}%"))
+    
+    if fee != "*":
+        # need to think for this as > < == range etc.
+        # filters.append(models.Attendance.student_name.like(f"%{student_name}%"))
+        pass
+        
+    if alert_date !="*":
+        date_list = alert_date.split("-")
+        filters.append(models.FeePlan.attendance_date == date(int(date_list[0]), int(date_list[1]), int(date_list[2])))
+    
+    
+        
+        
+    
+    # Apply filters only if they exist
+    if filters:
+        statement = statement.where(*filters)
+        
+    
+    # Optionally preload relationships
+    statement = statement.options(
+        selectinload(models.FeePlan.school),
+    )
+        
+    results = engine.exec(statement)
+    
+    output_list = list()
+    for result in results:    
+        output_list.append({
+            "id": str(result.id),
+            "classsection_id":str(result.classsection_id),
+            "class_name":result.class_name,
+            "fee":float(result.fee),
+            "alert_date":str(result.alert_date),
+            "school":{
+                "id": str(result.school.id),
+                "name":result.school.name,
+                "email":result.school.email,
+                "phone":result.school.phone,
+            },
+            
+        })
+   
+    return output_list
+
+# # #
+
+# Update FeePlan
+def updateFeePlan(engine: Session, feeplan: models.FeePlan):
+    statement = select(models.FeePlan).where(models.FeePlan.id == uuid.UUID(feeplan.id))
+    results = engine.exec(statement)
+    feeplan_record = results.one()
+    
+    feeplan_record.fee = feeplan.fee
+
+    
+    
+    
+    
+    engine.add(feeplan_record)
+    engine.commit()
+    engine.refresh(feeplan_record)
+    print("Updated Fee Plan: ", feeplan_record)
+    
+    
+    
+    updated_feeplan =  dict(feeplan_record)
+    updated_feeplan['id'] = str(updated_feeplan['id'])
+    updated_feeplan['school_id'] = str(updated_feeplan['school_id'])
+    updated_feeplan['classsection_id'] = str(updated_feeplan['classsection_id'])
+    updated_feeplan['class_name'] = str(updated_feeplan['class_name'])
+    updated_feeplan['fee'] = str(updated_feeplan['fee'])
+    updated_feeplan['alert_date'] = str(updated_feeplan['alert_date'])
+    
+    
+    
+    # updated_user.pop('created_by', None)
+    updated_feeplan['school'] = {
+                "id": str(feeplan_record.school.id),
+                "name":feeplan_record.school.name,
+                "email":feeplan_record.school.email,
+                "phone":feeplan_record.school.phone,
+            }
+    
+    return updated_feeplan
+
+
+
+# Delete Attendance
+def deleteFeePlan(engine: Session, id: str):
+    statement = select(models.FeePlan).where(
+        models.FeePlan.id == uuid.UUID(id),
+    )
+    
+    results = engine.exec(statement)
+    feeplan_record = results.one()
+    
+    print("selected feeplan_record: ", feeplan_record)
+    engine.delete(feeplan_record)
+    engine.commit()
+    
+    deleted_record =  dict(feeplan_record)
+    deleted_record['id'] = str(deleted_record['id'])
+    deleted_record['school_id'] = str(deleted_record['school_id'])
+    deleted_record['classsection_id'] = str(deleted_record['classsection_id'])
+    deleted_record['alert_date'] = str(deleted_record['alert_date'])
+    
+    
+    deleted_record['school'] = {
+                "id": str(feeplan_record.school.id),
+                "name":feeplan_record.school.name,
+                "email":feeplan_record.school.email,
+                "phone":feeplan_record.school.phone,
+            }
+    
+    return deleted_record
+# End Attendance

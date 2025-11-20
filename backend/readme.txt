@@ -82,3 +82,5 @@ WHILE CREATING SCHOOL user
 
 
 CRUD for classsection created, now working on Attendance.
+
+Attendance done, next Fee Plan.

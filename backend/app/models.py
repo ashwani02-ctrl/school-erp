@@ -38,7 +38,7 @@ class School(SQLModel, table=True):
     
     classes: list["ClassSection"] = Relationship(back_populates="school", cascade_delete=True)
     # feeplan_ids : uuid.UUID = Field(default=None, foreign_key="feeplan.id")
-    # feeplans : list["FeePlan"] = Relationship(back_populates="school")
+    feeplans : list["FeePlan"] = Relationship(back_populates="school")
     # feerecords : list["FeeRecord"] = Relationship(back_populates="school")
     attendances : list["Attendance"] = Relationship(back_populates="school")
     
@@ -114,16 +114,25 @@ class Attendance(SQLModel, table=True):
     school_id: uuid.UUID = Field(default=None, foreign_key="school.id", ondelete="CASCADE")
 
 # Fee Plan
-# class FeePlan(SQLModel, table=True):
-#     id : uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-#     # school_id : uuid.UUID = Field(default=None, foreign_key="school.id")
-#     # school : School = Relationship(back_populates="feeplans", cascade_delete=True)
-#     classsection : ClassSection = Relationship(back_populates="feeplan", cascade_delete=True)
-#     fee : float
-#     alert_date : datetime
-#     # end_date : datetime
+class FeePlan(SQLModel, table=True):
+    id : uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     
-#     feerecords : list["FeeRecord"] = Relationship(back_populates="feeplan")
+    # School details
+    school : School = Relationship(back_populates="feeplans", cascade_delete=True)
+    school_id : uuid.UUID = Field(foreign_key="school.id", ondelete="CASCADE")
+    
+    # class section
+    classsection_id: uuid.UUID | None = Field(foreign_key="classsection.id", ondelete="SET NULL")
+    class_name: str
+    
+    # Fee amount
+    fee : float
+    
+    # Alert month-year
+    alert_date: date
+    
+    
+    # feerecords : list["FeeRecord"] = Relationship(back_populates="feeplan")
 
 # Fee Record
 # class FeeRecord(SQLModel, table=True):
