@@ -712,7 +712,94 @@ async def deleteFeePlan(id: str, current_user: Annotated[models.Admin, Depends(g
             return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
-# End Attendance
+# End FeePlan
+
+# Fee 
+# Create a Fee Record
+@app.post("/api/fee", response_model=models.FeeRecord) # response_model tells the output schema
+async def createFeeRecord(feerecord: models.FeeRecord, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
+    
+    if current_user["role"] in ["admin", "school", "student"]:
+        try:
+            # School
+            school = crud.get_user_by_id(engine=db, user_id=feerecord.school_id, role="school")["user"]
+            feerecord.school = school
+            
+            db_item = crud.createFeeRecord(db, feerecord = feerecord)
+            return JSONResponse(content={"message":"Fee Record created Successfully!", "id": str(db_item.id)}, status_code=status.HTTP_201_CREATED)
+        except Exception as e:
+            if "Duplicate entry" in str(e):
+                e = "Duplication occurred!"
+            return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
+
+
+
+
+# Read FeeRecord as per the filter
+@app.get("/api/fee", response_model=list[models.FeeRecord])
+async def getFeeRecord(
+    current_user: Annotated[models.Admin, Depends(get_current_user)], 
+    
+    school_id: str,
+    paid: bool,
+    
+    id: str = "*", # record id
+
+    student_id: str="*",
+    student_name: str="*",
+    
+    feeplan_id: str="*",
+    payment_timestamp: str="*",
+    db: Session = Depends(get_session)):
+    
+    if current_user["role"] in ["admin", "school"]:    
+        try:
+            
+            school = crud.get_user_by_id(engine=db, user_id=school_id, role="school")["user"]
+            
+            print("school is: ", school)
+            
+            # add specific to school also, otherwise other schools can see each other fee records
+            feeplan_items = crud.getFeeRecord(engine=db, id=id, student_id=student_id, student_name=student_name, feeplan_id=feeplan_id, paid=paid, payment_timestamp=payment_timestamp, school=school)
+               
+            return JSONResponse(content={"message":"Operation Successful", "data": feeplan_items}, status_code=status.HTTP_200_OK)
+        
+        except Exception as e:
+             return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
+
+# Update FeePlan 
+@app.put("/api/fee", response_model=models.FeeRecord)
+async def updateFeeRecord(feerecord: models.FeeRecord, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
+    if current_user["role"] in ["admin", "school", "student"]:
+        try:
+            updated_feerecord = crud.updateFeeRecord(engine=db, feerecord=feerecord)
+            
+            print("updated_feeplan: ", updated_feerecord)
+            
+            return JSONResponse(content={"message":"Fee Record update successful!", "data": updated_feerecord}, status_code=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
+
+# Delete FeePlan
+@app.delete("/api/fee/{id}")
+async def deleteFeeRecord(id: str, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
+    if current_user["role"] in ["admin","school"]:
+        try:
+            deleted_record = crud.deleteFeeRecord(engine=db, id=id)
+            print("deleted_feerecord: ", deleted_record)
+            return JSONResponse(content={"message":"Record deletion successful!", "data": deleted_record}, status_code=status.HTTP_200_OK)
+        except Exception as e:
+            return JSONResponse(content={"message":f"Error: {e}"}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    return JSONResponse(content={"message":"You are not authorized for this action."}, status_code=status.HTTP_401_UNAUTHORIZED)
+# End Fee
 
 
 

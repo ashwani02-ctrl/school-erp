@@ -84,3 +84,5 @@ WHILE CREATING SCHOOL user
 CRUD for classsection created, now working on Attendance.
 
 Attendance done, next Fee Plan.
+
+In previous apis, do check to create separate flow for schools, as they are not allowed to see each other record.

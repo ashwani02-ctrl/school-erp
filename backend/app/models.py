@@ -1,6 +1,6 @@
 from sqlmodel import Field, SQLModel, Relationship
 from pydantic import EmailStr
-from datetime import date
+from datetime import date, datetime
 
 import uuid
 
@@ -132,16 +132,27 @@ class FeePlan(SQLModel, table=True):
     alert_date: date
     
     
-    # feerecords : list["FeeRecord"] = Relationship(back_populates="feeplan")
+    
 
 # Fee Record
-# class FeeRecord(SQLModel, table=True):
-#     id : uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-#     school : School = Relationship(back_populates="feerecords", cascade_delete=True)
-#     feeplan : FeePlan = Relationship(back_populates="feerecords", cascade_delete=True)
-#     student : Student = Relationship(back_populates="feerecords")
-#     paid : bool
-#     date_of_payment : datetime
+class FeeRecord(SQLModel, table=True):
+    id : uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    
+    # School details
+    school : School = Relationship(back_populates="feeplans", cascade_delete=True)
+    school_id : uuid.UUID = Field(foreign_key="school.id", ondelete="CASCADE")
+    
+    
+    # Student
+    student_id: uuid.UUID | None = Field(foreign_key="student.id", ondelete="SET NULL")
+    student_name: str
+    
+    # fee plan
+    feeplan_id: uuid.UUID | None = Field(foreign_key="feeplan.id", ondelete="SET NULL")
+    
+    paid : bool
+    
+    payment_timestamp : datetime
     
     
 
