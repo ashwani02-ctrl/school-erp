@@ -85,4 +85,6 @@ CRUD for classsection created, now working on Attendance.
 
 Attendance done, next Fee Plan.
 
-In previous apis, do check to create separate flow for schools, as they are not allowed to see each other record.
+REMEMBER: In previous apis, do check to create separate flow for schools, as they are not allowed to see each other record.
+
+Created all CRUD APIs, work needed for reset-password and profile flow.

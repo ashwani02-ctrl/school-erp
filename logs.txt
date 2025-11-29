@@ -1,0 +1,215 @@
+commit ed06263b8e69e1e23c482c2a73b62f02c47c0527
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Thu Nov 20 15:33:39 2025 +0530
+
+    Created CRUD API for /api/fee, testing remaining
+
+commit 64e0301dc728411383e1491ffb20ba482487c69b
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Thu Nov 20 11:58:47 2025 +0530
+
+    Created CRUD for /api/fee/plan, now testing with postman is remaining!
+
+commit 48b0002bc5e81b96863dc8204b43d7700d574243
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Thu Nov 20 01:07:32 2025 +0530
+
+    Create CRUD APIs for /api/attendance
+
+commit 4c8fc3a2c667797240d5f891ea0d87f221eb4740
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Wed Nov 19 17:40:36 2025 +0530
+
+    DELETE /api/classsection/{id} for deleteing classsection, and deleting students associated with the class via CASCADE Effect.
+
+commit 2522dfb79481c806cb463c3123dffab7c8d576d9
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Wed Nov 19 16:36:23 2025 +0530
+
+    fixed flow of student user creation, stuck due to not replacing roles with item_types in determine_itemmodel()
+
+commit e9e84fb08584c02710040777f1e928e7cf92e973
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Wed Nov 12 15:37:32 2025 +0530
+
+    Created PUT /api/classsection Request for both Admin and School User
+
+commit 494010916e47a6bebc451e2d63f8c9d5631fd092
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Wed Nov 12 15:08:33 2025 +0530
+
+    Created code for school as well as Admin user to GET /api/classsection Request API
+
+commit 7dc97b16d6f60fbd2a2e54a8227da97874c72e66
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Wed Nov 12 14:59:26 2025 +0530
+
+    GET /api/classsection request API created.
+
+commit 95074ee6461c9e6417d944e4b332e1f2015b26f7
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Fri Nov 7 06:28:46 2025 +0530
+
+    Created Create ClassSection API POST Request endpoint, and working on Get ClassSection API GET Request endpoint. Coded crud.py, now main.py part is remaining to be coded.
+
+commit 8bb2553c8861f0ae32ae1da714eeb90d26331d68
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Wed Oct 22 23:42:59 2025 +0530
+
+    Created frontend flow to login and save token as cookie named token at path /
+
+commit 8c547ec26eb64dff9c9df2ecd266a1252de275a6
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Wed Oct 15 00:03:10 2025 +0530
+
+    Login Page designed
+
+commit 32a94aed7ef7b8521955397f03a21cccc51d1f7a
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Mon Sep 22 18:39:17 2025 +0530
+
+    CRUD for Student User. Follows same set of rules as Teacher.
+
+commit dc1a4e63254fe2a18e70e36886b89629272257b7
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Mon Sep 22 17:47:46 2025 +0530
+
+    DELETE Teacher API for school as well as Admin. Created new field for Students in School, and School in Student.
+
+commit 942dbafaeaa986b64c0c0ea45633b99be0ae448c
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Mon Sep 22 17:36:26 2025 +0530
+
+    PUT update Teacher User by Admin and School
+
+commit c6e4185d0df2475fc4338de552840ca24253b10a
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Mon Sep 22 16:37:21 2025 +0530
+
+    GET Teacher User by School as well as Admin User
+
+commit 16d6d34679b5d6b96dd8e7da89483b64f2048c11
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Sat Sep 20 17:41:38 2025 +0530
+
+    POST request to Create a Teacher User, both by Admin and School
+
+commit 6d7b2d807694a80dc635f6a33c75a9ffac3bf50f
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Sat Sep 20 16:42:06 2025 +0530
+
+    DELETE School User Endpoint, updated Update and Delete user endpoint output, by removing password from the JSON output, and elaborated created_by field with admin user information in DB
+
+commit 77eb4daeae652e62e69f6fd62a601fe2b95107e6
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Sat Sep 20 16:21:41 2025 +0530
+
+    Added PUT update School User API endpoint
+
+commit f899bf7c1b37d5aaf6635a6a1303e4eb29bfc84c
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Sat Sep 20 16:10:34 2025 +0530
+
+    Improved GET Admin User endpoint, with response_model be list, parameters has default values in them, and improved json list response with dictionary of admin users
+
+commit 8d500bfb8252cfe7db86f24976cff75e820b4845
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Sat Sep 20 16:02:04 2025 +0530
+
+    Add GET School User endpoint flow, which now, returns list as json list, and now, there will be default parameter values for id, name, email, and phone
+
+commit 268574ff41624e3ec2f042ce98ca76dd2161bf82
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Sat Sep 20 15:25:20 2025 +0530
+
+    Activate virtual environment, start uvicorn server, add create School User API.
+
+commit 8c59c1c152ae1a2da4dcc7424ffeadd65bdcb35f
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Sun Sep 14 17:05:24 2025 +0530
+
+    Added Delete Admin User API endpoint.
+
+commit f979974acde693c76081e7336e25693ac78631d4
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Sun Sep 14 16:50:21 2025 +0530
+
+    Added Update method for Admin user.
+
+commit 8bfd32c20f20b58a02e28facf97c08e288625eeb
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Sun Sep 14 07:12:50 2025 +0530
+
+    Craeted flow to read admin user with a filter
+
+commit 3f2b094497074256f268bb57448581b83295489c
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Sun Sep 7 17:30:37 2025 +0530
+
+    Created Add Admin User, modified get_current_user() to return role along with current user credentials
+
+commit eb48a1177a3eace30428bce74f922ad6d574fe5f
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Sun Sep 7 15:41:07 2025 +0530
+
+    Created models as per the plan
+
+commit 21a5fe31f3d5945887247c939f35851a633d6d4e
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Sun Sep 7 14:51:29 2025 +0530
+
+    commit in from-scratch
+
+commit ce45968d4b7e0d073eaeef227054c0b546933580
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Wed Sep 3 17:37:39 2025 +0530
+
+    add get current user flow
+
+commit 3b593ffe49a1cd0c78caf03c7d1f9be9be33bf35
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Wed Sep 3 16:54:12 2025 +0530
+
+    add test.py for cryptography testing
+
+commit d8727ed39c0e2ad560846f5fd3ed8cebfee659df
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Wed Sep 3 16:53:47 2025 +0530
+
+    created Admin user login flow!
+
+commit 747e9c7225ab8b5829c1e7e4f155150e0f8ffd8b
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Tue Sep 2 16:23:08 2025 +0530
+
+    Fix unique email and user id issue using mariadb. Duplicacy issuse if removed from email.
+
+commit df7a965ce06f70bf8b9f8002ce5e67a19adcc7ad
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Tue Sep 2 15:30:59 2025 +0530
+
+    add mariadb container and adminer container, admin.py
+
+commit ace9b18e235b5c27581fb8dfc1c53a3369710bb9
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Wed Aug 27 23:15:39 2025 +0530
+
+    Created Admin, Student, Teacher and School mdoels. Created engine for DB Connection in database.py. Added code to get session, which will provide value to db parameter in api call function. Added CORSMiddleware and added get_current_user function
+
+commit 6d8be0197fcba1bb8c3cda68093941398d408005
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Wed Aug 27 19:12:34 2025 +0530
+
+    Added ER Diagram in Docs/ dir, and created files for database and models in backend.
+
+commit 57e64417a3cc627dcf0f360b639f04791570ba74
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Wed Aug 27 01:06:21 2025 +0530
+
+    Created backend and frontend env with Fastapi, ShadCN UI and Next js
+
+commit 509f8d6d680a701859fc603daada6ee78473cd08
+Author: 20AbhishekRoka02 <75659036+20AbhishekRoka02@users.noreply.github.com>
+Date:   Wed Aug 13 12:06:00 2025 +0530
+
+    Initial Commit. Written models.py for all User models in FastAPI backend. Initialized the Next js Frontend.
