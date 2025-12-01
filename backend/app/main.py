@@ -14,7 +14,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3001"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -62,6 +62,19 @@ async def test(current_user: Annotated[models.Admin, Depends(get_current_user)],
     print("current user is: ",current_user)
     return {"message":"Hello, World!"}
 
+@app.post("/profile")
+async def profile(current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
+    user = current_user["user"]
+    role = current_user["role"]
+    user_dict = {
+        "userid": str(user.id),
+        "username": user.name,
+        "phone": user.phone,
+        "email": user.email,
+        "role": role
+    }
+    return JSONResponse(content={"message": "Profile fetch successful!", "data": user_dict }, status_code=status.HTTP_200_OK)
+    
 
 from .security.passwordhashing import hash_password
 

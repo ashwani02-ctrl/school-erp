@@ -21,7 +21,7 @@ export async function POST(
   console.log(reqDict);
   
   try {
-    const res = await fetch(`${process.env.BASEURL}${process.env.LOGIN}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASEURL}${process.env.LOGIN}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

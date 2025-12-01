@@ -57,10 +57,13 @@ const formSchema = z.object({
     role: z.enum(roles, { "error": "Not a valid value!" })
 })
 
+import { useRouter } from "next/navigation"
+
 export function LoginForm({
     className,
     ...props
 }: React.ComponentProps<"div">) {
+    const router = useRouter();
 
     // 1. Define your form.
     const form = useForm<z.infer<typeof formSchema>>({
@@ -102,12 +105,11 @@ export function LoginForm({
             const result = await res.json();
             // console.log("Login success:", result);
             Cookies.set("token", result.token, {path : '/'});
+            router.push("/dashboard");
             // Redirect or store token here
         } catch (err) {
             console.error("Login error:", err);
         }
-
-
 
     }
 
