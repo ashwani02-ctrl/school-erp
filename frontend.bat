@@ -1,0 +1,1 @@
+cd .\frontend\webui && npm run dev

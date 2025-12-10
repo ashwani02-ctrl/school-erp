@@ -1,5 +1,7 @@
+"use client"
 import React from 'react'
 import { useState } from 'react'
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 
@@ -9,7 +11,7 @@ import {
   AvatarFallback
 } from '@radix-ui/react-avatar';
 
-import Image from 'next/image';
+import Cookies from "js-cookie"
 
 import {
   Sidebar,
@@ -26,41 +28,58 @@ import {
 export default function AppSidebarNew() {
   const [active, setActive] = useState<string | null>(null);
 
-  const handleClick = (key: string) => {
-    console.log("key is: ", key);
-    setActive(key);
-  }
+  
 
   const sidebarMenuItems = [
     {
       key: "admins",
-      name: "Admins"
+      name: "Admins",
+      url: "/dashboard/admins"
     },
     {
       key: "schools",
-      name: "Schools"
+      name: "Schools",
+      url: "/dashboard/schools"
     },
     {
       key: "teachers",
-      name: "Teachers"
+      name: "Teachers",
+      url: "/dashboard/teachers"
     },
     {
       key: "students",
-      name: "Students"
+      name: "Students",
+      url: "/dashboard/students"
     },
     {
       key: "attendance",
-      name: "Attendance"
+      name: "Attendance",
+      url: "/dashboard/attendance"
     },
     {
       key: "fee-plan",
-      name: "Fee Plan"
+      name: "Fee Plan",
+      url: "/dashboard/feeplan"
     },
     {
       key: "fee-record",
-      name: "Fee Record"
+      name: "Fee Record",
+      url: "/dashboard/feerecord"
     }
   ]
+
+  const handleClick = (key: string, url: string) => {
+    console.log("key is: ", key);
+    setActive(key);
+    router.push(url);
+  }
+
+  const router = useRouter();
+  const logout = () => {
+    Cookies.remove("token");
+    router.refresh();
+    
+  }
 
   const user = {
     name: "ABC",
@@ -72,6 +91,7 @@ export default function AppSidebarNew() {
   type MenuItem = {
     key: string
     name: string
+    url: string
   }
 
   return (
@@ -105,7 +125,7 @@ export default function AppSidebarNew() {
                 <SidebarMenuItem key={menu.key} >
                   <SidebarMenuButton
                     isActive={active === menu.key}
-                    onClick={() => handleClick(menu.key)}
+                    onClick={() => handleClick(menu.key, menu.url)}
                     variant={"outline"}
                     className='justify-center'
 
@@ -123,7 +143,7 @@ export default function AppSidebarNew() {
       </SidebarContent>
       <SidebarFooter >
         <Button
-          variant={"destructive"}>Logout</Button>
+          variant={"destructive"} onClick={logout}>Logout</Button>
       </SidebarFooter>
     </Sidebar>
 
