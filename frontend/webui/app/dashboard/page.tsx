@@ -1,6 +1,8 @@
 "use client"
 
-import { AppSidebar } from "../components/dashboard/app-sidebar"
+// import { AppSidebar } from "../components/dashboard/app-sidebar"
+import AppSidebarNew from "../components/dashboard/app-sidebar-new"
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -19,6 +21,7 @@ import {
 
 import { useEffect, useState } from "react"
 import Cookies from "js-cookie"
+
 
 export default function Page() {
   const [profile, setProfile] = useState({
@@ -85,7 +88,8 @@ export default function Page() {
 }
   return (
     <SidebarProvider>
-      <AppSidebar menuData={sidebarData} />
+      {/* <AppSidebarNew menuData={sidebarData} /> */}
+      <AppSidebarNew  />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
