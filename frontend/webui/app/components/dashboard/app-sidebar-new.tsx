@@ -3,11 +3,13 @@ import { useState } from 'react'
 
 import { Button } from '@/components/ui/button';
 
-import { 
+import {
   Avatar,
   AvatarImage,
   AvatarFallback
 } from '@radix-ui/react-avatar';
+
+import Image from 'next/image';
 
 import {
   Sidebar,
@@ -63,6 +65,7 @@ export default function AppSidebarNew() {
   const user = {
     name: "ABC",
     avatar: "https://images.unsplash.com/photo-1492633423870-43d1cd2775eb?&w=128&h=128&dpr=2&q=80",
+    // avatar: "abc.jpg",
     email: "abc@email.com"
   }
 
@@ -73,15 +76,24 @@ export default function AppSidebarNew() {
 
   return (
 
-    <Sidebar>
+    <Sidebar className='bg-blue-950'>
       <SidebarHeader>
         <div className=''>
           <h1 className='text-center text-wrap text-3xl font-bold'>Admin Panel</h1>
           {/* h-8 w-8 */}
-          <Avatar className=" h-6 w-6 rounded-full grayscale ">
-                <AvatarImage className='' src={user.avatar} alt={user.name} />
-                <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-              </Avatar>
+          <div className=' '>
+            <Avatar className=" size-36 flex mx-16 lg:mx-12">
+              <AvatarImage className='rounded-full grayscale  ' src={user.avatar} alt={user.name} />
+              {/* <Image 
+                    src="/avatar.svg"
+                    alt={user.name}
+                    width={24}
+                    height={24}
+                    className='h-6 w-6 object-cover object-center rounded-full'
+                  /> */}
+              <AvatarFallback className="flex items-center justify-center rounded-lg ">CN</AvatarFallback>
+            </Avatar>
+          </div>
           <p className='text-center'>{user.name}</p>
         </div>
       </ SidebarHeader>
