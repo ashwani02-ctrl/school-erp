@@ -104,7 +104,7 @@ export function LoginForm({
 
             const result = await res.json();
             // console.log("Login success:", result);
-            Cookies.set("token", result.token, {path : '/'});
+            Cookies.set("token", result.token, { path: '/' });
             router.push("/dashboard");
             // Redirect or store token here
         } catch (err) {
@@ -119,7 +119,10 @@ export function LoginForm({
         <div className={cn("flex flex-col gap-6", className)} {...props}>
             <Card>
                 <CardHeader className="text-center">
-                    <CardTitle className="text-xl">Welcome</CardTitle>
+                    <CardTitle className="text-xl">Login to your account</CardTitle>
+                    <CardDescription>
+                        Enter your email below to login to your account
+                    </CardDescription>
 
                 </CardHeader>
                 <CardContent>
@@ -138,7 +141,7 @@ export function LoginForm({
                                             {...field}
                                             id="form-email"
                                             type="email"
-                                            placeholder="m@example.com"
+                                            placeholder="Enter your email"
                                             aria-invalid={fieldState.invalid}
                                             // onChange={(e) => { setEmail(e.target.value) }}
                                             autoComplete="off"
@@ -159,11 +162,21 @@ export function LoginForm({
                                 control={form.control}
                                 render={({ field, fieldState }) => (
                                     <Field data-invalid={fieldState.invalid}>
+                                        <div className="flex">
+
                                         <FieldLabel htmlFor="form-password">Password</FieldLabel>
+                                        <a
+                                            href="#"
+                                            className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                                        >
+                                            Forgot your password?
+                                        </a>
+                                        </div>
                                         <Input
                                             {...field}
                                             id="form-password"
                                             type="password"
+                                            placeholder="Enter your password"
                                             required
                                         />
                                         {fieldState.invalid && (
@@ -196,7 +209,7 @@ export function LoginForm({
                                                 aria-invalid={fieldState.invalid}
                                                 className="min-w-[120px]"
                                             >
-                                                <SelectValue placeholder="Role" />
+                                                <SelectValue placeholder="Select your role" />
                                             </SelectTrigger>
                                             <SelectContent position="item-aligned">
                                                 <SelectItem value="admin">Admin</SelectItem>

@@ -2,7 +2,12 @@ import React from 'react'
 
 function page() {
   return (
-    <div>Admins Page</div>
+    <div>
+      <p className='text-center'>
+      Admins Page
+
+      </p>
+      </div>
   )
 }
 
