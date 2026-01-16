@@ -2,7 +2,7 @@
 import React from 'react'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation';
-
+import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 
 import {
@@ -25,10 +25,54 @@ import {
   SidebarMenuButton
 } from "@/components/ui/sidebar"
 
+
+
 export default function AppSidebarNew() {
   const [active, setActive] = useState<string | null>(null);
 
+  interface User {
+    name: string,
+    avatar: string,
+    email: string,
+    role: string
+  }
+
+  const [user, setUser] = useState<User>({
+     name: "",
+    avatar: "https://github.com/shadcn.png",
+    email: "",
+    role: "student"
+  });
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+
+      try {
+        const res = await fetch("/api/profile", {
+          method: "POST",
+          credentials: "include",
+          headers: { 
+            "Content-Type": "application/json",
+          },
+          // body: JSON.stringify(values),
+        });
   
+        if (!res.ok) throw new Error("Profile fetch failed");
+  
+        const result = await res.json();
+        setUser((preUser) => ({...preUser, name: result.data.username, email: result.data.email, role: result.data.role}));
+        
+        console.log("Result profile: ", result);
+
+      } catch (err) {
+        console.error("Login error:", err);
+      }
+    }
+
+    fetchProfile();
+
+  }, []);
+
 
   const sidebarMenuItems = [
     {
@@ -78,15 +122,10 @@ export default function AppSidebarNew() {
   const logout = () => {
     Cookies.remove("token");
     router.refresh();
-    
+
   }
 
-  const user = {
-    name: "ABC",
-    avatar: "https://images.unsplash.com/photo-1492633423870-43d1cd2775eb?&w=128&h=128&dpr=2&q=80",
-    // avatar: "abc.jpg",
-    email: "abc@email.com"
-  }
+  
 
   type MenuItem = {
     key: string
@@ -99,7 +138,7 @@ export default function AppSidebarNew() {
     <Sidebar className='bg-blue-950'>
       <SidebarHeader>
         <div className=''>
-          <h1 className='text-center text-wrap text-3xl font-bold'>Admin Panel</h1>
+          <h1 className='text-center text-wrap text-3xl font-bold py-6'>Admin Panel</h1>
           {/* h-8 w-8 */}
           <div className=' '>
             <Avatar className=" size-36 flex mx-16 lg:mx-12">
