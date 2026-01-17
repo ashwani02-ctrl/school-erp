@@ -75,6 +75,7 @@ export type Admin = {
 }
 
 
+import CreateNewAdminButton from './CreateNewAdminButton'
 
 async function page() {
   const data = await getData();
@@ -82,11 +83,7 @@ async function page() {
   return (
     <div>
 
-      <div className='pt-8 pl-10 pb-4 '>
-        <Button variant={'outline'} className='focus:ring-2 focus:ring-gray-400'>
-          <PlusIcon />Add New Admin
-        </Button>
-      </div>
+      <CreateNewAdminButton/>
       <div className='px-10'>
         <Card>
           <CardContent>

@@ -62,7 +62,7 @@ export default function AppSidebarNew() {
         const result = await res.json();
         setUser((preUser) => ({...preUser, name: result.data.username, email: result.data.email, role: result.data.role}));
         
-        console.log("Result profile: ", result);
+        // console.log("Result profile: ", result);
 
       } catch (err) {
         console.error("Login error:", err);

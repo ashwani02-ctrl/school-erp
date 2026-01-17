@@ -8,6 +8,8 @@ import {
 } from "lucide-react"
 import { Admin } from "./page"
 
+import { useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 export const columns: ColumnDef<Admin>[] = [
     {
         accessorKey: "id",
@@ -40,10 +42,17 @@ export const columns: ColumnDef<Admin>[] = [
         id: "actions",
         cell: ({ row }) => {
             const admin = row.original
+            const router = useRouter();
+            const pathname = usePathname();
+
 
             return (
                 <>
-                    <Button variant={"outline"}>
+                    <Button variant={"outline"} onClick={(event)=>{
+                        event.preventDefault();
+                        
+                        router.push(`${pathname}/${admin.id}`);
+                    }}>
                         <EyeIcon />
                         View
                     </Button>

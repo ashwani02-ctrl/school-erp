@@ -110,6 +110,11 @@ async def createAdminUser(admin: models.Admin, current_user: Annotated[models.Ad
         try:
             password = random_password_generator()
             db_user = crud.createAdminUser(db, admin, hash_password(password))
+            if db_user:
+                # Now send password to user
+                print("Will test email sending", password)
+                pass
+            
             return JSONResponse(content={"message":"User created Successfully!", "uid": str(db_user.id)}, status_code=status.HTTP_201_CREATED)
         except Exception as e:
             if "Duplicate entry" in str(e):

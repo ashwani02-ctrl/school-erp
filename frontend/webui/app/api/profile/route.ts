@@ -20,7 +20,7 @@ export async function POST(
   // console.log(res)
   const cookieStore = await cookies();
   const token = await cookieStore.get("token");
-  console.log(token);
+  // console.log(token);
   
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BASEURL}/profile`, {
