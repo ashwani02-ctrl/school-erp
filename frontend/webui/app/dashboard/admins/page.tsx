@@ -10,10 +10,8 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 
-import { Input } from '@/components/ui/input'
-
 import { PlusIcon } from 'lucide-react'
-import { string } from 'zod'
+
 
 
 import { columns } from './columns'
@@ -84,16 +82,16 @@ async function page() {
   return (
     <div>
 
-      <div>
+      <div className='pt-8 pl-10 pb-4 '>
         <Button variant={'outline'} className='focus:ring-2 focus:ring-gray-400'>
           <PlusIcon />Add New Admin
         </Button>
       </div>
-      <div>
+      <div className='px-10'>
         <Card>
           <CardContent>
             <DataTable columns={columns} data={data} />
-            <p>Card Content</p>
+            {/* <p>Card Content</p> */}
           </CardContent>
         </Card>
       </div>

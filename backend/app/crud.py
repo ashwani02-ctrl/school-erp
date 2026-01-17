@@ -336,6 +336,50 @@ def getTeacherUser(engine: Session, id: str, name:str, email : str, phone:str, s
    
     return output_list
 
+
+def getTeacherByAdmin(engine: Session, id: str, name:str, email : str, phone:str):
+    
+   
+    
+    if len(id.replace("-","")) != 32:
+        statement = select(models.Teacher).where(
+                # defining filters
+                # models.Teacher.school_id == school.id,
+                models.Teacher.name.like(f"%{name}%"), 
+                models.Teacher.email.like(f"%{email}%"), 
+                models.Teacher.phone.like(f"%{phone}%")
+            ).options(selectinload(models.Teacher.school))
+        
+    else:
+        statement = select(models.Teacher).where(
+                models.Teacher.id == uuid.UUID(id), # id must be fixed
+                # models.Teacher.school_id == school.id,
+                models.Teacher.name.like(f"%{name}%"), 
+                models.Teacher.email.like(f"%{email}%"), 
+                models.Teacher.phone.like(f"%{phone}%"),
+            ).options(selectinload(models.Teacher.school))
+    
+    
+   
+    results = engine.exec(statement)
+    
+    output_list = list()
+    for result in results:    
+        output_list.append({
+            "id": str(result.id),
+            "name":result.name,
+            "email":result.email,
+            "phone":result.phone,
+            "school":{
+                "id": str(result.school.id),
+                "name":result.school.name,
+                "email":result.school.email,
+                "phone":result.school.phone,
+            }
+        })
+   
+    return output_list
+
 # Update Teacher User
 def updateTeacherUser(engine: Session, teacher: models.Teacher):
     statement = select(models.Teacher).where(models.Teacher.id == uuid.UUID(teacher.id))
