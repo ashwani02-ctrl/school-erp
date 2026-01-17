@@ -135,7 +135,8 @@ export default function AppSidebarNew() {
 
   return (
 
-    <Sidebar className='bg-blue-950'>
+
+    <Sidebar className=''>
       <SidebarHeader>
         <div className=''>
           <h1 className='text-center text-wrap text-3xl font-bold py-6'>Admin Panel</h1>
