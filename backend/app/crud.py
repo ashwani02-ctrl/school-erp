@@ -505,6 +505,48 @@ def getStudentUser(engine: Session, id: str, name:str, email : str, phone:str, s
    
     return output_list
 
+
+def getStudentByAdmin(engine: Session, id: str, name:str, email : str, phone:str):
+    
+    if len(id.replace("-","")) != 32:
+        statement = select(models.Student).where(
+                # defining filters
+                # models.Student.school_id == school.id,
+                models.Student.name.like(f"%{name}%"), 
+                models.Student.email.like(f"%{email}%"), 
+                models.Student.phone.like(f"%{phone}%")
+            ).options(selectinload(models.Student.school))
+        
+    else:
+        statement = select(models.Student).where(
+                models.Student.id == uuid.UUID(id), # id must be fixed
+                # models.Student.school_id == school.id,
+                models.Student.name.like(f"%{name}%"), 
+                models.Student.email.like(f"%{email}%"), 
+                models.Student.phone.like(f"%{phone}%"),
+            ).options(selectinload(models.Student.school))
+    
+    
+   
+    results = engine.exec(statement)
+    
+    output_list = list()
+    for result in results:    
+        output_list.append({
+            "id": str(result.id),
+            "name":result.name,
+            "email":result.email,
+            "phone":result.phone,
+            "school":{
+                "id": str(result.school.id),
+                "name":result.school.name,
+                "email":result.school.email,
+                "phone":result.school.phone,
+            }
+        })
+   
+    return output_list
+
 # Update Student User
 def updateStudentUser(engine: Session, student: models.Student):
     statement = select(models.Student).where(models.Student.id == uuid.UUID(student.id))

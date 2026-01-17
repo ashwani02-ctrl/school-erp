@@ -406,7 +406,7 @@ async def getStudentUser(
             if current_user['role'] == 'school':
                 teacher_users = crud.getStudentUser(engine=db, id=id, name=name, email=email, phone=phone, school=current_user["user"])
             else:
-                teacher_users = crud.getStudentUser(engine=db, id=id, name=name, email=email, phone=phone, school=crud.get_user_by_id(db, school_id, "school")["user"])
+                teacher_users = crud.getStudentByAdmin(engine=db, id=id, name=name, email=email, phone=phone)
             return JSONResponse(content={"message":"Operation Successful", "data": teacher_users}, status_code=status.HTTP_200_OK)
         
         except Exception as e:
