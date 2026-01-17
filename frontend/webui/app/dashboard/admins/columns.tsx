@@ -37,10 +37,6 @@ export const columns: ColumnDef<Admin>[] = [
         header: "Phone",
     },
     {
-        accessorKey: "password",
-        header: "Password",
-    },
-    {
         id: "actions",
         cell: ({ row }) => {
             const admin = row.original

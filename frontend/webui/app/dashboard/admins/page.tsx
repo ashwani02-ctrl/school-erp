@@ -19,20 +19,52 @@ import { string } from 'zod'
 import { columns } from './columns'
 import { DataTable } from './data-table'
 
+import { cookies } from 'next/headers'
+
 async function getData(): Promise<Admin> {
+  const cookieStore = await cookies();
+  const token = await cookieStore.get("token");
+
+  // console.log("token: ", token);
+
+
+
   let admins: Admin[] = []
-    
-  for (let index = 0; index < 20; index++) {
-    // const element = array[index];
-    admins.push({
-      id: '2ac36f65b14848acbd0bb75b36356f8e',
-      name: 'admin2',
-      email: 'admin2@gmail.com',
-      phone: '9087765432',
-      password: '6a4e56271eb45b2652fa0895729f2ca4d070d8b837d1e5fc44231bd884486d2a'
-    })
-    
+
+  try {
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASEURL}/api/admin`, {
+      method: "GET",
+      // credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token?.value}`,
+      }
+    });
+
+    if (!res.ok) throw Error("Admins GET error")
+
+    const result = await res.json();
+    // console.log("result: ", result);
+    for (let index = 0; index < result.data.length; index++) {
+      admins.push(result.data[index]);
+    }
+
+  } catch (err) {
+    console.log("Error: ", err);
+    for (let index = 0; index < 20; index++) {
+      
+      admins.push({
+        id: '2ac36f65b14848acbd0bb75b36356f8e',
+        name: 'admin2',
+        email: 'admin2@gmail.com',
+        phone: '9087765432',
+      })
+
+    }
   }
+
+
 
   return admins
 }
@@ -42,8 +74,6 @@ export type Admin = {
   name: string,
   email: string,
   phone: string,
-  password: string
-
 }
 
 
@@ -61,23 +91,10 @@ async function page() {
       </div>
       <div>
         <Card>
-          {/* <CardHeader className='flex'> */}
-            {/* <CardTitle>Card Title</CardTitle>
-            <CardDescription>Card Description</CardDescription>
-            <CardAction>Card Action</CardAction> */}
-            {/* <Input type='text' placeholder='serach by id' />
-            <Input type='text' placeholder='serach by username' />
-            <Input type='email' placeholder='serach by email' />
-            <Button>Search</Button> */}
-            {/* <Button variant={'outline'}>Download as CSV</Button> */}
-          {/* </CardHeader> */}
           <CardContent>
             <DataTable columns={columns} data={data} />
             <p>Card Content</p>
           </CardContent>
-          <CardFooter>
-            <p>Card Footer</p>
-          </CardFooter>
         </Card>
       </div>
     </div>
