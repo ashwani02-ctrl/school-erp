@@ -40,7 +40,7 @@ async function page({
 
   return (
     <>
-    <div>View Admin User: {slug}</div>
+    {/* <div>View Admin User: {slug}</div> */}
     
 
     <AdminUserCard id={slug}/>

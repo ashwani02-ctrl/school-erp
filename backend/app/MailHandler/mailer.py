@@ -10,12 +10,14 @@ load_dotenv()
 # Defining the types of Emails to be sent
 class EmailType(enum.Enum):
     NEW_USER_REGISTRATION = "new_user_registration"
+    PASSWORD_RESET = "password_reset"
     # UNIVERSITY = "University"
     # STUDENT = "Student"
     # PLACEMENT = "Placement"
     
 EmailSubject={
-    'NEW_USER_REGISTRATION' : "Welcome to Abhishek Roka's School ERP System"
+    'NEW_USER_REGISTRATION' : "Welcome to Abhishek Roka's School ERP System",
+    'PASSWORD_RESET' : "Password Reset"
     
 }
     # UNIVERSITY = "University"
@@ -32,11 +34,21 @@ def send_email(email_type, recipient_email,  subject, message_variables, usernam
     subject = str(subject)
     
     if email_type == EmailType.NEW_USER_REGISTRATION:
-        with open("./MailHandler/Templates/PasswordGenerated.txt", "r", encoding="utf-8") as file:
+        with open("/app/app/MailHandler/Templates/PasswordGenerated.txt", "r", encoding="utf-8") as file:
             message = file.read()
             message = message.replace("{Your Portal Name}", os.environ['PORTAL_NAME'])
             message = message.replace("{username}", message_variables['username'])
             message = message.replace("{password}", message_variables['password'])
+            message = message.replace("{role}", message_variables['role'])
+    elif email_type == EmailType.PASSWORD_RESET:
+        with open("/app/app/MailHandler/Templates/PasswordReset.txt", "r", encoding="utf-8") as file:
+            message = file.read()
+            message = message.replace("{Your Portal Name}", os.environ['PORTAL_NAME'])
+            message = message.replace("{username}", message_variables['username'])
+            message = message.replace("{password}", message_variables['password'])
+            
+        pass
+        
     message = message.replace("{email}", recipient_email)
     message = message.replace("{login_url}", os.environ['PORTAL_URL'])
             
@@ -57,6 +69,7 @@ if __name__=="__main__":
     message_variables = {
         "username": "JohnDoe",
         "password": "random_password",
+        "role":"Admin"
     }
     
     # username = "JohnDoe"

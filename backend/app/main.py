@@ -101,7 +101,7 @@ async def loginAdminUser(user: schema.LoginUser, db: Session = Depends(get_sessi
 # Admin Users
 # Create Admin User
 from .security.passwordhashing import random_password_generator
-
+from .MailHandler.mailer import send_email, EmailSubject, EmailType
 # Create an Admin user
 @app.post("/api/admin", response_model=models.Admin) # response_model tells the output schema
 async def createAdminUser(admin: models.Admin, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
@@ -112,6 +112,16 @@ async def createAdminUser(admin: models.Admin, current_user: Annotated[models.Ad
             db_user = crud.createAdminUser(db, admin, hash_password(password))
             if db_user:
                 # Now send password to user
+                send_email(
+                email_type=EmailType.NEW_USER_REGISTRATION,
+                subject=EmailSubject['NEW_USER_REGISTRATION'],
+                message_variables={
+                    "username": db_user.name,
+                    "password": password,
+                    "role": "Admin"
+                },
+                recipient_email=db_user.email,
+            )
                 print("Will test email sending", password)
                 pass
             
@@ -159,12 +169,25 @@ async def getAdminUser(
 @app.put("/api/admin", response_model=models.Admin)
 async def updateAdminUser(admin: models.Admin, current_user: Annotated[models.Admin, Depends(get_current_user)], db: Session = Depends(get_session)):
     if current_user["role"] == "admin":
+        new_password = admin.password
         
         # print("admin schema: ", admin)
         if admin.password != "":
             admin.password = hash_password(admin.password)
         try:
             updated_user = crud.updateAdminUser(engine=db, admin=admin)
+            
+            if updated_user:
+                # Now send password reset mail to the user
+                send_email(
+                    email_type=EmailType.PASSWORD_RESET,
+                    subject=EmailSubject['PASSWORD_RESET'],
+                    message_variables={
+                        "username":updated_user['name'],
+                        "password": new_password
+                    },
+                    recipient_email=updated_user['email']
+                )
             print("updated_user: ", updated_user)
             return JSONResponse(content={"message":"User update successful!", "data": updated_user}, status_code=status.HTTP_200_OK)
         except Exception as e:

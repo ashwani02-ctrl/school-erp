@@ -35,6 +35,8 @@ import { email, z } from "zod"
 import { toast } from 'sonner'
 
 import { useRouter } from 'next/router'
+import { passwordGenerator } from '../../passwordGenerator'
+
 const AdminUserCard: React.FC<AdminUserCardProps> = ({ id }) => {
     // const [name, setName] = useState('');
     // const [email, setEmail] = useState('');
@@ -101,6 +103,10 @@ const AdminUserCard: React.FC<AdminUserCardProps> = ({ id }) => {
         phone: z.string(),
     })
 
+    const resetPasswordScheme = z.object({
+        password: z.string()
+    })
+
     // 1. Define your form.
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -108,7 +114,14 @@ const AdminUserCard: React.FC<AdminUserCardProps> = ({ id }) => {
             name: "",
             email: "",
             phone: "",
-            
+
+        },
+    })
+
+    const resetPasswordForm = useForm<z.infer<typeof resetPasswordScheme>>({
+        resolver: zodResolver(resetPasswordScheme),
+        defaultValues: {
+            password: ''
         },
     })
 
@@ -130,23 +143,61 @@ const AdminUserCard: React.FC<AdminUserCardProps> = ({ id }) => {
                     phone: values.phone,
                     password: ''
                 })
-            }) 
+            })
             const result = await res.json();
             if (!res.ok) throw new Error("Admin user updation Error")
-            toast(`${result.message}`); 
+            toast(`${result.message}`);
             console.log("result: ", result);
-            setUser((prevUser) => ({...prevUser, name: values.name, email: values.email, phone: values.phone}))
+            // setUser((prevUser) => ({ ...prevUser, name: values.name, email: values.email, phone: values.phone }))
 
-            form.reset({
-                name: values.name,
-                email: values.email,
-                phone: values.phone
-            })
-            
-        } catch(error) {
+            // form.reset({
+            //     name: values.name,
+            //     email: values.email,
+            //     phone: values.phone
+            // })
+
+        } catch (error) {
             console.error("Admin user updation Error!")
             toast("Admin user updation Error!")
         }
+    }
+
+    async function onResetPasswordSubmit(value: z.infer<typeof resetPasswordScheme>) {
+        console.log("values: ", value);
+
+
+        try {
+            const res = await fetch("/api/admin", {
+                method: "PUT",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    id: id,
+                    name: user.name,
+                    email: user.email,
+                    phone: user.phone,
+                    password: value.password
+                })
+            })
+            const result = await res.json();
+            if (!res.ok) throw new Error("Admin user updation Error")
+            toast('Password Reset Successful!');
+            console.log("result: ", result);
+            // setUser((prevUser) => ({ ...prevUser, name: values.name, email: values.email, phone: values.phone }))
+
+            // form.reset({
+            //     name: values.name,
+            //     email: values.email,
+            //     phone: values.phone
+            // })
+
+        } catch (error) {
+            console.error("Admin user updation Error!")
+            toast("Admin user updation Error!")
+        }
+
     }
 
     async function adminDelete() {
@@ -163,13 +214,13 @@ const AdminUserCard: React.FC<AdminUserCardProps> = ({ id }) => {
                     email: user.email,
                     phone: user.phone,
                 })
-            }) 
+            })
             const result = await res.json();
             if (!res.ok) throw new Error("Admin user Deletion Error")
-            toast(`${result.message}`); 
+            toast(`${result.message}`);
             console.log("result: ", result);
-            
-        } catch(error) {
+
+        } catch (error) {
             console.error("Admin user Deletion Error!")
             toast("Admin user deletion Error!")
         }
@@ -185,12 +236,12 @@ const AdminUserCard: React.FC<AdminUserCardProps> = ({ id }) => {
         if (name && email && phone && editButtons && viewButtons) {
 
             if (enable) {
-                
+
                 setIsEditing(enable);
                 editButtons.className = 'block';
                 viewButtons.className = 'hidden';
             } else {
-                
+
                 setIsEditing(enable);
                 form.reset({
                     name: user.name,
@@ -201,11 +252,18 @@ const AdminUserCard: React.FC<AdminUserCardProps> = ({ id }) => {
                 editButtons.className = 'hidden';
                 viewButtons.className = 'block';
             }
-            
+
         }
     }
 
-    
+
+    const generatePassword = () => {
+        const password = passwordGenerator(16);
+        resetPasswordForm.reset({
+            password: password
+        })
+    }
+
     return (
         <div className='px-10 py-10'>
             <Card>
@@ -228,7 +286,7 @@ const AdminUserCard: React.FC<AdminUserCardProps> = ({ id }) => {
                                             id="form-name"
                                             type="text"
                                             placeholder="Enter name"
-                                            
+
                                             aria-invalid={fieldState.invalid}
                                             // onChange={(e) => { setName(e.target.value) }}
                                             autoComplete="off"
@@ -299,37 +357,91 @@ const AdminUserCard: React.FC<AdminUserCardProps> = ({ id }) => {
                             />
 
 
-                            
+
 
 
 
                             {/* Submit the form */}
                             <Field id="view-buttons">
                                 <div className='flex space-x-1 justify-center '>
-                                <Button onClick={(event) => {
-                                    event.preventDefault();
-                                    enableEdit(true);
-                                    
-                                }}>Edit</Button>
-                                <Button variant={'destructive'} onClick={(event)=> {
-                                    event.preventDefault();
-                                    adminDelete();
-                                }} >Delete</Button>
+                                    <Button onClick={(event) => {
+                                        event.preventDefault();
+                                        enableEdit(true);
+
+                                    }}>Edit</Button>
+                                    <Button variant={'destructive'} onClick={(event) => {
+                                        event.preventDefault();
+                                        adminDelete();
+                                    }} >Delete</Button>
                                 </div>
                             </Field>
                             <Field id="edit-buttons" className='hidden'>
                                 <div className='flex space-x-1 justify-center '>
-                                <Button type='submit' form="create-admin-form">Save</Button>
-                                <Button variant={'destructive'} onClick={(event)=>{
-                                    event.preventDefault();
-                                    enableEdit(false);
-                                }} >Cancel</Button>
+                                    <Button type='submit' form="create-admin-form">Save</Button>
+                                    <Button variant={'destructive'} onClick={(event) => {
+                                        event.preventDefault();
+                                        enableEdit(false);
+                                    }} >Cancel</Button>
                                 </div>
                             </Field>
 
                         </FieldGroup>
                     </form>
 
+                </CardContent>
+            </Card>
+
+
+            {/* Reset Password */}
+            <Card className='my-4'>
+                <CardHeader>
+                    <CardTitle>Reset Password</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <form id="reset-password-admin-form" onSubmit={resetPasswordForm.handleSubmit(onResetPasswordSubmit)}>
+                        {/* Password Controller */}
+                        <Controller
+                            name="password"
+                            control={resetPasswordForm.control}
+                            render={({ field, fieldState }) => (
+                                <Field data-invalid={fieldState.invalid}>
+                                    <FieldLabel htmlFor="form-password">New Password</FieldLabel>
+                                    <div className='flex space-x-1'>
+
+                                        <Input
+                                            {...field}
+                                            id="form-password"
+                                            type="password"
+                                            placeholder="Enter password"
+                                            // value = {email}
+                                            aria-invalid={fieldState.invalid}
+                                            // onChange={(e) => { setEmail(e.target.value) }}
+                                            autoComplete="off"
+                                            required
+
+                                        />
+
+                                        <Button onClick={(event) => {
+                                            event.preventDefault();
+                                            generatePassword();
+                                        }}>Generate</Button>
+                                    </div>
+                                    {fieldState.invalid && (
+                                        <FieldError errors={[fieldState.error]} />
+                                    )}
+
+                                </Field>
+                            )}
+                        />
+
+                        {/* Submit the form */}
+                        <Field className='py-4'>
+                                <Button type='submit' form='reset-password-admin-form'>Submit</Button>
+                            <div className='flex space-x-1 justify-center py-4'>
+                                
+                            </div>
+                        </Field>
+                    </form>
                 </CardContent>
             </Card>
         </div>
