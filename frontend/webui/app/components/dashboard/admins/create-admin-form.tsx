@@ -121,14 +121,9 @@ export function CreateAdminForm({
                 throw new Error("Admin Creation failed") 
             }
             else {
-                toast("Admin User Created!");
+                toast("Admin User Created!", { position: "top-center" });
             }
 
-            // const result = await res.json();
-            // console.log("Login success:", result);
-            // Cookies.set("token", result.token, { path: '/' });
-            // router.push("/dashboard");
-            // Redirect or store token here
         } catch (err) {
             console.error("Login error:", err);
         }

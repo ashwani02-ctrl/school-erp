@@ -34,10 +34,14 @@ import { email, z } from "zod"
 // import { Phone } from 'lucide-react'
 import { toast } from 'sonner'
 
-import { useRouter } from 'next/router'
+import { useRouter } from 'next/navigation'
 import { passwordGenerator } from '../../passwordGenerator'
+import { fa } from 'zod/v4/locales'
 
 const AdminUserCard: React.FC<AdminUserCardProps> = ({ id }) => {
+
+    const router = useRouter();
+
     // const [name, setName] = useState('');
     // const [email, setEmail] = useState('');
     // const [phone, setPhone] = useState('');
@@ -50,6 +54,7 @@ const AdminUserCard: React.FC<AdminUserCardProps> = ({ id }) => {
         phone: ''
     })
     const [loading, setLoading] = useState(true);
+    const [isThere, setIsThere] = useState(true);
 
     useEffect(() => {
         let isMounted = true;
@@ -65,22 +70,29 @@ const AdminUserCard: React.FC<AdminUserCardProps> = ({ id }) => {
                 })
                 if (!res.ok) throw new Error("Error while Fetching user information");
                 const result = await res.json();
-                console.log("result: ", result.data[0]);
+                // console.log("result: ", result.data[0]);
 
-                const data = result.data[0];
+                if (result.data.length == 0) {
+                    
+                    setIsThere(false);
 
-                if (isMounted) {
-                    form.reset({
-                        name: data.name,
-                        email: data.email,
-                        phone: data.phone
-                    })
-                    setUser((prevUser) => ({
-                        ...prevUser, name: data.name, email: data.email, phone: data.phone
-                    }));
-                    // setName(data.name);
-                    // setEmail(data.email);
-                    // setPhone(data.phone);
+                } else {
+                    setIsThere(true);
+                    const data = result.data[0];
+    
+                    if (isMounted) {
+                        form.reset({
+                            name: data.name,
+                            email: data.email,
+                            phone: data.phone
+                        })
+                        setUser((prevUser) => ({
+                            ...prevUser, name: data.name, email: data.email, phone: data.phone
+                        }));
+                        // setName(data.name);
+                        // setEmail(data.email);
+                        // setPhone(data.phone);
+                    }
                 }
 
 
@@ -201,6 +213,7 @@ const AdminUserCard: React.FC<AdminUserCardProps> = ({ id }) => {
     }
 
     async function adminDelete() {
+        // const router = useRouter();
         try {
             const res = await fetch("/api/admin", {
                 method: "DELETE",
@@ -217,8 +230,10 @@ const AdminUserCard: React.FC<AdminUserCardProps> = ({ id }) => {
             })
             const result = await res.json();
             if (!res.ok) throw new Error("Admin user Deletion Error")
-            toast(`${result.message}`);
+            toast(`${result.message}`, { position: "top-center" });
             console.log("result: ", result);
+            
+            router.push("/dashboard/admins")
 
         } catch (error) {
             console.error("Admin user Deletion Error!")
@@ -265,6 +280,8 @@ const AdminUserCard: React.FC<AdminUserCardProps> = ({ id }) => {
     }
 
     return (
+        <>
+        {(isThere) ? 
         <div className='px-10 py-10'>
             <Card>
                 <CardHeader>
@@ -444,7 +461,14 @@ const AdminUserCard: React.FC<AdminUserCardProps> = ({ id }) => {
                     </form>
                 </CardContent>
             </Card>
-        </div>
+        </div> : <div className='flex flex-col justify-center items-center h-screen -m-12'> 
+            <p className='font-bold text-7xl'>404</p>
+            <p className='text-2xl font-semibold'>
+            Record Not Found! 
+
+            </p>
+            </div> }
+        </>
     )
 }
 

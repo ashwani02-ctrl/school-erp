@@ -1,4 +1,4 @@
-
+"use client"
 import React from 'react'
 import AppSidebarNew from '../components/dashboard/app-sidebar-new'
 import {
@@ -16,7 +16,16 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar"
 
+import Breadcrumbs from '../components/dashboard/breadcrumbs'
+// import { usePathname } from 'next/navigation'
+// import { useEffect } from 'react';
 function DashboardSidebarProvider({children}:{children: React.ReactNode}) {
+
+    // useEffect(() => {
+    //     const p = usePathname();
+    //     console.log("p: ", p);
+    // })
+    
     return (
         <>
             <SidebarProvider>
@@ -28,7 +37,8 @@ function DashboardSidebarProvider({children}:{children: React.ReactNode}) {
                             orientation="vertical"
                             className="mr-2 data-[orientation=vertical]:h-4"
                         />
-                        <Breadcrumb>
+                        <Breadcrumbs/>
+                        {/* <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem className="hidden md:block">
                                     <BreadcrumbLink href="#">
@@ -40,7 +50,7 @@ function DashboardSidebarProvider({children}:{children: React.ReactNode}) {
                                     <BreadcrumbPage>Data Fetching</BreadcrumbPage>
                                 </BreadcrumbItem>
                             </BreadcrumbList>
-                        </Breadcrumb>
+                        </Breadcrumb> */}
                     </header>
                     {/* <div className="flex flex-1 flex-col gap-4 p-4">
                         <p>Welcome to Admin Panel</p>

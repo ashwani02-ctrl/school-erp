@@ -1,68 +1,75 @@
-"use client";
+"use client;"
 import React from 'react'
-import { SlashIcon } from 'lucide-react';
 import {
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
     BreadcrumbList,
     BreadcrumbPage,
-    BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+    BreadcrumbSeparator
 
-import { usePathname } from 'next/navigation';
-
+} from '@/components/ui/breadcrumb'
+import { usePathname } from 'next/navigation'
+import { SlashIcon } from 'lucide-react'
+// import { useEffect } from 'react'
+type breadcrumbObj = {
+    name: string,
+    link: string
+}
 function Breadcrumbs() {
 
-    const pathname = usePathname() || "/";
-    const segments: string[] = pathname.split("/").filter((seg) => seg.length > 0);
+    const p = usePathname();
+    // console.log("path: ", path);
 
+    let len = p.split("/").length;
+    let paths = p.split("/").slice(1, len - 1);
+    let pathObjs: breadcrumbObj[] = [];
 
-    const crumbs = segments.map((segment, index) => {
+    for (let index = 0; index < paths.length- 1; index++) {
+        let link = "/" + paths.slice(0, index + 1).join("/");
+        let name = paths[index];
+        let pathObj: breadcrumbObj = {
+            name: name,
+            link: link
+        };
 
-        const href = "/" + segments.slice(0, index + 1).join("/");
-        // console.log("segment, index: ", segment, index);
-        // console.log("segment slice: ", segments.slice(0, index + 1));
-        // const href = "/"
-        const isLast = index === segments.length - 1;
-
-        return (
-            <>
-                <BreadcrumbItem >
-                    {
-                        isLast ? (
-                            <BreadcrumbPage className='capitalize'>
-                                {segment}
-                            </BreadcrumbPage>
-
-                        ) : (
-                            <BreadcrumbLink href={href} className='capitalize'>
-                                {segment}
-                            </BreadcrumbLink >
-                        )
-                    }
-                </BreadcrumbItem>
-
-                {!isLast ?
-                    <BreadcrumbSeparator>
-                        <SlashIcon />
-                    </BreadcrumbSeparator>
-
-                    : ""}
-            </>
-        )
-
-    });
-
-    console.log("crumbs: ", crumbs);
+        pathObjs.push(pathObj);
+    }
 
     return (
+
         <>
             <Breadcrumb>
                 <BreadcrumbList>
-                    {crumbs}
+                    {
+                        (pathObjs.length > 0) ?
+                            pathObjs.map((pathObj, index) => (
+
+                                <>
+
+                                    <BreadcrumbItem className="hidden md:block" key={index}>
+                                        <BreadcrumbLink href={pathObj.link}>
+                                            {pathObj.name}
+                                        </BreadcrumbLink>
+                                    </BreadcrumbItem>
+                                    <BreadcrumbSeparator className="hidden md:block">
+                                        <SlashIcon/>
+                                    </ BreadcrumbSeparator>
+                                </>
+
+
+                            ))
+                            : ""
+
+                    }
+                    {/* <BreadcrumbItem className="hidden md:block">
+                    </BreadcrumbItem> */}
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>{paths[paths.length - 1]}</BreadcrumbPage>
+                    </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
+
         </>
     )
 }
